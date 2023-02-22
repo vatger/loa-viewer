@@ -47,8 +47,9 @@ const ConditionsTable = (props: any) => {
         useState<boolean>(false);
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any>>(null);
+    const [globalFilterValue, setGlobalFilterValue] = useState<string>('');
 
-    const [filters, setFilters] = useState<DataTableFilterMeta>({
+    const [filters, setFilters] = useState<any>({
         global: { value: null, matchMode: FilterMatchMode.CONTAINS },
         aerodrome: {
             operator: FilterOperator.OR,
@@ -189,7 +190,11 @@ const ConditionsTable = (props: any) => {
         const val = (e.target && e.target.value) || '';
         let _condition = { ...condition };
 
-        _condition[`${name}`] = val;
+        if (name === 'special_conditions') {
+            _condition[`${name}`] = val;
+        } else {
+            _condition[`${name}`] = val.toUpperCase();
+        }
 
         setCondition(_condition);
     };
@@ -307,6 +312,27 @@ const ConditionsTable = (props: any) => {
         );
     };
 
+    const onGlobalFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        let _filters = { ...filters };
+
+        _filters['global'].value = value;
+
+        setFilters(_filters);
+        setGlobalFilterValue(value);
+    };
+
+    const header = (
+        <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
+            <InputText
+                type="search"
+                value={globalFilterValue}
+                onChange={onGlobalFilterChange}
+                placeholder="Search Airports or COPs"
+            />
+        </div>
+    );
+
     return (
         <>
             <Card header="LoA">
@@ -315,6 +341,8 @@ const ConditionsTable = (props: any) => {
                     left={leftToolbarTemplate}
                     right={rightToolbarTemplate}></Toolbar>
                 <DataTable
+                    globalFilterFields={['aerodrome', 'cop']}
+                    header={header}
                     ref={dt}
                     responsiveLayout="scroll"
                     value={conditions}
@@ -445,6 +473,7 @@ const ConditionsTable = (props: any) => {
                             <InputNumber
                                 id="level"
                                 value={condition.level}
+                                useGrouping={false}
                                 onChange={e => onInputNumberChange(e, 'level')}
                                 autoFocus
                             />
