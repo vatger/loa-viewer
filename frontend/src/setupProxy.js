@@ -5,6 +5,7 @@ module.exports = function (app) {
         '/api',
         createProxyMiddleware({
             target: 'http://localhost:3030',
+            //target: 'https://loa.vatsim-germany.org',
             changeOrigin: true,
         })
     );

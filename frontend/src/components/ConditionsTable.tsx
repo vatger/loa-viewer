@@ -18,6 +18,7 @@ import { Button } from 'primereact/button';
 import React from 'react';
 import { FrontendCondition } from 'interfaces/condition.interface';
 import { Toast } from 'primereact/toast';
+import { Toolbar } from 'primereact/toolbar';
 
 const ConditionsTable = (props: any) => {
     const newEmptyCondition = {
@@ -45,6 +46,7 @@ const ConditionsTable = (props: any) => {
     const [deleteConditionDialog, setDeleteConditionDialog] =
         useState<boolean>(false);
     const toast = useRef<Toast>(null);
+    const dt = useRef<DataTable<any>>(null);
 
     const [filters, setFilters] = useState<DataTableFilterMeta>({
         global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -274,9 +276,15 @@ const ConditionsTable = (props: any) => {
         </React.Fragment>
     );
 
-    return (
-        <>
-            <Card header="LoA">
+    const exportCSV = () => {
+        console.log(dt.current);
+
+        dt.current?.exportCSV();
+    };
+
+    const leftToolbarTemplate = () => {
+        return (
+            <div className="flex flex-wrap gap-2">
                 <Button
                     label="New"
                     icon="pi pi-plus"
@@ -284,7 +292,30 @@ const ConditionsTable = (props: any) => {
                     onClick={openNew}
                     className="mb-2"
                 />
+            </div>
+        );
+    };
+
+    const rightToolbarTemplate = () => {
+        return (
+            <Button
+                label="Export"
+                icon="pi pi-upload"
+                className="p-button-help"
+                onClick={exportCSV}
+            />
+        );
+    };
+
+    return (
+        <>
+            <Card header="LoA">
+                <Toolbar
+                    className="mb-4"
+                    left={leftToolbarTemplate}
+                    right={rightToolbarTemplate}></Toolbar>
                 <DataTable
+                    ref={dt}
                     responsiveLayout="scroll"
                     value={conditions}
                     showGridlines
@@ -346,117 +377,128 @@ const ConditionsTable = (props: any) => {
                 className="p-fluid"
                 footer={conditionDialogFooter}
                 onHide={hideDialog}>
-                <div className="field">
-                    <label htmlFor="aerodromes" className="font-bold">
-                        Aerodromes
-                    </label>
-                    <InputText
-                        id="aerodromes"
-                        placeholder="ICAO, ICAO, ... etc."
-                        value={condition.aerodrome}
-                        onChange={e => onInputChange(e, 'aerodrome')}
-                    />
-                </div>
-                <div className="field">
-                    <div className="flex flex-wrap gap-3">
-                        <div className="flex align-items-center">
-                            <RadioButton
-                                inputId="adep"
-                                name="adep"
-                                value="ADEP"
-                                onChange={e => onRadioChange(e, 'adep_ades')}
-                                checked={condition.adep_ades === 'ADEP'}
-                            />
-                            <label htmlFor="adep" className="ml-2">
-                                Departure
-                            </label>
-                        </div>
-                        <div className="flex align-items-center">
-                            <RadioButton
-                                inputId="adep"
-                                name="ades"
-                                value="ADES"
-                                onChange={e => onRadioChange(e, 'adep_ades')}
-                                checked={condition.adep_ades === 'ADES'}
-                            />
-                            <label htmlFor="ades" className="ml-2">
-                                Destination
-                            </label>
+                <div className="formgrid grid">
+                    <div className="field col-6">
+                        <label htmlFor="aerodromes" className="font-bold">
+                            Aerodromes
+                        </label>
+                        <InputText
+                            id="aerodromes"
+                            placeholder="ICAO, ICAO, ... etc."
+                            value={condition.aerodrome}
+                            onChange={e => onInputChange(e, 'aerodrome')}
+                        />
+                    </div>
+
+                    <div className="field col-6">
+                        <label className="font-bold">ADEP/ADES</label>
+                        <div className="flex flex-wrap gap-3">
+                            <div className="flex align-items-center">
+                                <RadioButton
+                                    inputId="adep"
+                                    name="adep"
+                                    value="ADEP"
+                                    onChange={e =>
+                                        onRadioChange(e, 'adep_ades')
+                                    }
+                                    checked={condition.adep_ades === 'ADEP'}
+                                />
+                                <label htmlFor="adep" className="ml-2">
+                                    Departure
+                                </label>
+                            </div>
+                            <div className="flex align-items-center">
+                                <RadioButton
+                                    inputId="adep"
+                                    name="ades"
+                                    value="ADES"
+                                    onChange={e =>
+                                        onRadioChange(e, 'adep_ades')
+                                    }
+                                    checked={condition.adep_ades === 'ADES'}
+                                />
+                                <label htmlFor="ades" className="ml-2">
+                                    Destination
+                                </label>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div className="field">
-                    <label htmlFor="cop" className="font-bold">
-                        COP
-                    </label>
-                    <InputText
-                        id="cop"
-                        value={condition.cop}
-                        onChange={e => onInputChange(e, 'cop')}
-                        autoFocus
-                    />
-                </div>
-                <div className="field">
-                    <label htmlFor="level" className="font-bold">
-                        Level
-                    </label>
-                    <div className="p-inputgroup">
-                        <InputNumber
-                            id="level"
-                            value={condition.level}
-                            onChange={e => onInputNumberChange(e, 'level')}
+                <div className="formgrid grid">
+                    <div className="field col-2">
+                        <label htmlFor="cop" className="font-bold">
+                            COP
+                        </label>
+                        <InputText
+                            id="cop"
+                            value={condition.cop}
+                            onChange={e => onInputChange(e, 'cop')}
                             autoFocus
                         />
-                        <span className="p-inputgroup-addon">
-                            <Checkbox
-                                id="feet"
-                                checked={condition.feet}
-                                onChange={e => onCheckmarkChange(e)}
-                            />
-                            <label htmlFor="feet" className="ml-2">
-                                is feet
-                            </label>
-                        </span>
                     </div>
-                </div>
-                <div className="field">
-                    <div className="flex flex-wrap gap-3">
-                        <div className="flex align-items-center">
-                            <RadioButton
-                                inputId="climbing"
-                                name="xc"
-                                value="A"
-                                onChange={e => onRadioChange(e, 'xc')}
-                                checked={condition.xc === 'A'}
+                    <div className="field col-3">
+                        <label htmlFor="level" className="font-bold">
+                            Level
+                        </label>
+                        <div className="p-inputgroup">
+                            <InputNumber
+                                id="level"
+                                value={condition.level}
+                                onChange={e => onInputNumberChange(e, 'level')}
+                                autoFocus
                             />
-                            <label htmlFor="climbing" className="ml-2">
-                                Climbing
-                            </label>
+                            <span className="p-inputgroup-addon">
+                                <Checkbox
+                                    id="feet"
+                                    checked={condition.feet}
+                                    onChange={e => onCheckmarkChange(e)}
+                                />
+                                <label htmlFor="feet" className="ml-2">
+                                    is feet
+                                </label>
+                            </span>
                         </div>
-                        <div className="flex align-items-center">
-                            <RadioButton
-                                inputId="descending"
-                                name="xc"
-                                value="B"
-                                onChange={e => onRadioChange(e, 'xc')}
-                                checked={condition.xc === 'B'}
-                            />
-                            <label htmlFor="descending" className="ml-2">
-                                Descending
-                            </label>
-                        </div>
-                        <div className="flex align-items-center">
-                            <RadioButton
-                                inputId="none"
-                                name="xc"
-                                value={null}
-                                onChange={e => onRadioChange(e, 'xc')}
-                                checked={condition.xc === null}
-                            />
-                            <label htmlFor="none" className="ml-2">
-                                At level
-                            </label>
+                    </div>
+                    <div className="field col-6">
+                        <label className="font-bold">Crossing Condition</label>
+                        <div className="flex flex-wrap gap-3">
+                            <div className="flex align-items-center">
+                                <RadioButton
+                                    inputId="climbing"
+                                    name="xc"
+                                    value="A"
+                                    onChange={e => onRadioChange(e, 'xc')}
+                                    checked={condition.xc === 'A'}
+                                />
+                                <label htmlFor="climbing" className="ml-2">
+                                    Climbing
+                                </label>
+                            </div>
+                            <div className="flex align-items-center">
+                                <RadioButton
+                                    inputId="descending"
+                                    name="xc"
+                                    value="B"
+                                    onChange={e => onRadioChange(e, 'xc')}
+                                    checked={condition.xc === 'B'}
+                                />
+                                <label htmlFor="descending" className="ml-2">
+                                    Descending
+                                </label>
+                            </div>
+                            <div className="flex align-items-center">
+                                <RadioButton
+                                    inputId="none"
+                                    name="xc"
+                                    value={null}
+                                    onChange={e => onRadioChange(e, 'xc')}
+                                    checked={condition.xc === null}
+                                />
+                                <label htmlFor="none" className="ml-2">
+                                    At level
+                                </label>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -474,45 +516,54 @@ const ConditionsTable = (props: any) => {
                         cols={20}
                     />
                 </div>
-                <div className="field">
-                    <label htmlFor="from_sector" className="font-bold">
-                        From Sector
-                    </label>
-                    <InputText
-                        id="from_sector"
-                        value={condition.from_sector}
-                        onChange={e => onInputChange(e, 'from_sector')}
-                    />
+
+                <div className="formgrid grid">
+                    <div className="field col-6">
+                        <label htmlFor="from_sector" className="font-bold">
+                            From Sector
+                        </label>
+                        <InputText
+                            id="from_sector"
+                            placeholder="ex. GIN"
+                            value={condition.from_sector}
+                            onChange={e => onInputChange(e, 'from_sector')}
+                        />
+                    </div>
+                    <div className="field col-6">
+                        <label htmlFor="to_sector" className="font-bold">
+                            To Sector
+                        </label>
+                        <InputText
+                            id="to_sector"
+                            placeholder="ex. FUL"
+                            value={condition.to_sector}
+                            onChange={e => onInputChange(e, 'to_sector')}
+                        />
+                    </div>
                 </div>
-                <div className="field">
-                    <label htmlFor="to_sector" className="font-bold">
-                        To Sector
-                    </label>
-                    <InputText
-                        id="to_sector"
-                        value={condition.to_sector}
-                        onChange={e => onInputChange(e, 'to_sector')}
-                    />
-                </div>
-                <div className="field">
-                    <label htmlFor="from_fir" className="font-bold">
-                        From FIR
-                    </label>
-                    <InputText
-                        id="from_fir"
-                        value={condition.from_fir}
-                        onChange={e => onInputChange(e, 'from_fir')}
-                    />
-                </div>
-                <div className="field">
-                    <label htmlFor="to_fir" className="font-bold">
-                        To FIR
-                    </label>
-                    <InputText
-                        id="to_fir"
-                        value={condition.to_fir}
-                        onChange={e => onInputChange(e, 'to_fir')}
-                    />
+                <div className="formgrid grid">
+                    <div className="field col-6">
+                        <label htmlFor="from_fir" className="font-bold">
+                            From FIR
+                        </label>
+                        <InputText
+                            id="from_fir"
+                            placeholder="ex. EDGG"
+                            value={condition.from_fir}
+                            onChange={e => onInputChange(e, 'from_fir')}
+                        />
+                    </div>
+                    <div className="field col-6">
+                        <label htmlFor="to_fir" className="font-bold">
+                            To FIR
+                        </label>
+                        <InputText
+                            id="to_fir"
+                            placeholder="ex. EDUU"
+                            value={condition.to_fir}
+                            onChange={e => onInputChange(e, 'to_fir')}
+                        />
+                    </div>
                 </div>
             </Dialog>
 
