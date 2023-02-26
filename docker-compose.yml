@@ -15,4 +15,3 @@ services:
       - .:/opt:delegated
     environment:
       - MONGO_URI
-      - REACT_APP_ADMIN_PASSWORD

@@ -22,7 +22,6 @@ import { Toolbar } from 'primereact/toolbar';
 import { Password } from 'primereact/password';
 import { Controller, useForm } from 'react-hook-form';
 import { classNames } from 'primereact/utils';
-import config from '../../../backend/src/config';
 
 const ConditionsTable = (props: any) => {
     const newEmptyCondition = {
@@ -160,7 +159,7 @@ const ConditionsTable = (props: any) => {
     };
 
     const onSubmit = (data: any) => {
-        if (data.value === config().adminPassword) {
+        if (data.value === 'VATGER!') {
             toast.current?.show({
                 severity: 'success',
                 summary: 'Successful',
