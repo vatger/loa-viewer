@@ -19,6 +19,9 @@ import React from 'react';
 import { FrontendCondition } from 'interfaces/condition.interface';
 import { Toast } from 'primereact/toast';
 import { Toolbar } from 'primereact/toolbar';
+import { Password } from 'primereact/password';
+import { Controller, useForm } from 'react-hook-form';
+import { classNames } from 'primereact/utils';
 
 const ConditionsTable = (props: any) => {
     const newEmptyCondition = {
@@ -48,6 +51,13 @@ const ConditionsTable = (props: any) => {
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any>>(null);
     const [globalFilterValue, setGlobalFilterValue] = useState<string>('');
+
+    const [adminDialog, setAdminDialog] = useState<boolean>(false);
+    const [admin, setAdmin] = useState<boolean>(false);
+
+    const defaultValues = { value: '' };
+    const form = useForm({ defaultValues });
+    const errors = form.formState.errors;
 
     const [filters, setFilters] = useState<any>({
         global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -138,6 +148,36 @@ const ConditionsTable = (props: any) => {
     const hideDialog = () => {
         setSubmitted(false);
         setAddConditionDialog(false);
+    };
+
+    const openAdminDialog = () => {
+        setAdminDialog(true);
+    };
+
+    const hideAdminDialog = () => {
+        setAdminDialog(false);
+    };
+
+    const onSubmit = (data: any) => {
+        if (data.value === process.env.REACT_APP_ADMIN_PASSWORD) {
+            toast.current?.show({
+                severity: 'success',
+                summary: 'Successful',
+                detail: 'Form Submitted',
+                life: 3000,
+            });
+
+            form.reset();
+            setAdmin(true);
+            setAdminDialog(false);
+        } else {
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Wrong Password',
+                detail: '',
+                life: 3000,
+            });
+        }
     };
 
     const saveCondition = async () => {
@@ -296,6 +336,7 @@ const ConditionsTable = (props: any) => {
                     outlined
                     onClick={openNew}
                     className="mb-2"
+                    disabled={!admin}
                 />
             </div>
         );
@@ -303,12 +344,21 @@ const ConditionsTable = (props: any) => {
 
     const rightToolbarTemplate = () => {
         return (
-            <Button
-                label="Export"
-                icon="pi pi-upload"
-                className="p-button-help"
-                onClick={exportCSV}
-            />
+            <>
+                <Button
+                    label="Export"
+                    icon="pi pi-upload"
+                    className="p-button-help mr-2"
+                    onClick={exportCSV}
+                />
+
+                <Button
+                    label="Admin"
+                    icon="pi pi-sliders-h"
+                    className="p-button-danger"
+                    onClick={openAdminDialog}
+                />
+            </>
         );
     };
 
@@ -393,6 +443,7 @@ const ConditionsTable = (props: any) => {
                         header="Admin"
                         body={adminButtonTemplate}
                         align="center"
+                        hidden={!admin}
                     />
                 </DataTable>
             </Card>
@@ -616,6 +667,39 @@ const ConditionsTable = (props: any) => {
                         </span>
                     )}
                 </div>
+            </Dialog>
+            <Dialog visible={adminDialog} onHide={hideAdminDialog}>
+                <form
+                    onSubmit={form.handleSubmit(onSubmit)}
+                    className="flex flex-column gap-2">
+                    <Controller
+                        name="value"
+                        control={form.control}
+                        rules={{ required: 'Password is required.' }}
+                        render={({ field, fieldState }) => (
+                            <>
+                                <label
+                                    htmlFor={field.name}
+                                    className={classNames({
+                                        'p-error': errors.value,
+                                    })}>
+                                    Password
+                                </label>
+                                <Password
+                                    id={field.name}
+                                    {...field}
+                                    inputRef={field.ref}
+                                    className={classNames({
+                                        'p-invalid': fieldState.error,
+                                    })}
+                                    feedback={false}
+                                />
+                                {/* {getFormErrorMessage(field.name)} */}
+                            </>
+                        )}
+                    />
+                    <Button label="Submit" type="submit" icon="pi pi-check" />
+                </form>
             </Dialog>
             <Toast ref={toast} />
         </>
