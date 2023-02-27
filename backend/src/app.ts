@@ -3,6 +3,7 @@ import bodyparser from 'body-parser';
 import router from './router';
 import errors from '@shared/errors';
 import mongoose from 'mongoose';
+import cookieParser from 'cookie-parser';
 
 import config from './config';
 
@@ -19,6 +20,7 @@ import config from './config';
     const app = express();
 
     app.use(bodyparser.json());
+    app.use(cookieParser());
 
     app.use('/api/v1', router);
 
@@ -26,26 +28,19 @@ import config from './config';
     app.use(express.static(frontendRoot));
     app.use((req, res) => res.sendFile(`${frontendRoot}/index.html`));
 
-    app.use(
-        (
-            err: Error,
-            req: express.Request,
-            res: express.Response,
-            next: express.NextFunction
-        ) => {
-            console.log(err);
+    app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
+        console.log(err);
 
-            if (err instanceof errors.APIError) {
-                return res.status(err.responseCode).json(err);
-            }
-
-            if (err instanceof errors.CustomError) {
-                return res.status(500).json(err);
-            }
-
-            res.status(500).json({ message: err.message });
+        if (err instanceof errors.APIError) {
+            return res.status(err.responseCode).json(err);
         }
-    );
+
+        if (err instanceof errors.CustomError) {
+            return res.status(500).json(err);
+        }
+
+        res.status(500).json({ message: err.message });
+    });
 
     const port = 3000;
     app.listen(port, () => {

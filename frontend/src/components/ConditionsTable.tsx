@@ -4,11 +4,7 @@ import { InputTextarea } from 'primereact/inputtextarea';
 import { InputNumber, InputNumberChangeEvent } from 'primereact/inputnumber';
 import { RadioButton, RadioButtonChangeEvent } from 'primereact/radiobutton';
 import { Checkbox, CheckboxChangeEvent } from 'primereact/checkbox';
-import {
-    DataTable,
-    DataTableFilterMeta,
-    DataTableRowEditCompleteEvent,
-} from 'primereact/datatable';
+import { DataTable, DataTableFilterMeta, DataTableRowEditCompleteEvent } from 'primereact/datatable';
 import { Column, ColumnEditorOptions } from 'primereact/column';
 import conditionService from 'services/conditionService';
 import { FilterMatchMode, FilterOperator } from 'primereact/api';
@@ -22,6 +18,8 @@ import { Toolbar } from 'primereact/toolbar';
 import { Password } from 'primereact/password';
 import { Controller, useForm } from 'react-hook-form';
 import { classNames } from 'primereact/utils';
+import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
+import authService from 'services/authService';
 
 const ConditionsTable = (props: any) => {
     const newEmptyCondition = {
@@ -39,15 +37,17 @@ const ConditionsTable = (props: any) => {
         to_fir: '',
     };
 
+    interface Station {
+        name: string;
+        code: string[];
+    }
+
     const [conditions, setConditions] = useState<FrontendCondition[]>([]);
     const [loading, setLoading] = useState(true);
-    const [addConditionDialog, setAddConditionDialog] =
-        useState<boolean>(false);
-    const [condition, setCondition] =
-        useState<FrontendCondition>(newEmptyCondition);
+    const [addConditionDialog, setAddConditionDialog] = useState<boolean>(false);
+    const [condition, setCondition] = useState<FrontendCondition>(newEmptyCondition);
     const [submitted, setSubmitted] = useState<boolean>(false);
-    const [deleteConditionDialog, setDeleteConditionDialog] =
-        useState<boolean>(false);
+    const [deleteConditionDialog, setDeleteConditionDialog] = useState<boolean>(false);
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any>>(null);
     const [globalFilterValue, setGlobalFilterValue] = useState<string>('');
@@ -85,11 +85,21 @@ const ConditionsTable = (props: any) => {
         },
     });
 
+    const [selectedStations, setSelectedStations] = useState<Station | null>(null);
+    const stations: Station[] = [{ name: 'EDGG_KTG_CTR', code: ['KTG', 'DKB', 'STG'] }];
+
     useEffect(() => {
         conditionService.getConditions().then((data: any[]) => {
             setConditions(data);
             setLoading(false);
         });
+
+        authService
+            .getUser()
+            .then(() => {
+                setAdmin(true);
+            })
+            .catch(e => {});
     }, []);
 
     const levelTemplate = (option: any) => {
@@ -115,16 +125,8 @@ const ConditionsTable = (props: any) => {
     const adminButtonTemplate = (rowData: any) => {
         return (
             <>
-                <Button
-                    className="p-button-sm mr-2"
-                    label="Edit"
-                    onClick={() => openEdit(rowData)}
-                />
-                <Button
-                    className="p-button-sm "
-                    label="Delete"
-                    onClick={() => openDelete(rowData)}
-                />
+                <Button className="p-button-sm mr-2" label="Edit" onClick={() => openEdit(rowData)} />
+                <Button className="p-button-sm " label="Delete" onClick={() => openDelete(rowData)} />
             </>
         );
     };
@@ -158,8 +160,10 @@ const ConditionsTable = (props: any) => {
         setAdminDialog(false);
     };
 
-    const onSubmit = (data: any) => {
-        if (data.value === 'VATGER!') {
+    const onSubmit = async (data: any) => {
+        try {
+            await authService.loginUser({ password: data.value });
+
             toast.current?.show({
                 severity: 'success',
                 summary: 'Successful',
@@ -170,14 +174,19 @@ const ConditionsTable = (props: any) => {
             form.reset();
             setAdmin(true);
             setAdminDialog(false);
-        } else {
+        } catch (error) {
             toast.current?.show({
                 severity: 'error',
                 summary: 'Wrong Password',
-                detail: '',
+                detail: `${error}`,
                 life: 3000,
             });
         }
+    };
+
+    const logoutUser = async () => {
+        await authService.logoutUser();
+        setAdmin(false);
     };
 
     const saveCondition = async () => {
@@ -187,9 +196,7 @@ const ConditionsTable = (props: any) => {
         let _condition = { ...condition };
 
         if (_condition._id !== null) {
-            const index = _conditions.findIndex(
-                element => element._id === _condition._id
-            );
+            const index = _conditions.findIndex(element => element._id === _condition._id);
 
             await conditionService.updateCondition(_condition._id, _condition);
 
@@ -216,17 +223,7 @@ const ConditionsTable = (props: any) => {
         setCondition(newEmptyCondition);
     };
 
-    const onInputChange = (
-        e: any,
-        name:
-            | 'cop'
-            | 'aerodrome'
-            | 'special_conditions'
-            | 'from_sector'
-            | 'to_sector'
-            | 'from_fir'
-            | 'to_fir'
-    ) => {
+    const onInputChange = (e: any, name: 'cop' | 'aerodrome' | 'special_conditions' | 'from_sector' | 'to_sector' | 'from_fir' | 'to_fir') => {
         const val = (e.target && e.target.value) || '';
         let _condition = { ...condition };
 
@@ -248,10 +245,7 @@ const ConditionsTable = (props: any) => {
         setCondition(_condition);
     };
 
-    const onRadioChange = (
-        e: RadioButtonChangeEvent,
-        name: 'xc' | 'adep_ades'
-    ) => {
+    const onRadioChange = (e: RadioButtonChangeEvent, name: 'xc' | 'adep_ades') => {
         let _condition = { ...condition };
 
         _condition[`${name}`] = e.value;
@@ -271,9 +265,7 @@ const ConditionsTable = (props: any) => {
 
     const deleteCondition = async () => {
         try {
-            let _conditions = conditions.filter(
-                val => val._id !== condition._id
-            );
+            let _conditions = conditions.filter(val => val._id !== condition._id);
 
             await conditionService.deleteCondition(condition._id);
 
@@ -294,29 +286,14 @@ const ConditionsTable = (props: any) => {
 
     const deleteConditionsDialogFooter = (
         <React.Fragment>
-            <Button
-                label="No"
-                icon="pi pi-times"
-                outlined
-                onClick={hideDeleteConditionsDialog}
-            />
-            <Button
-                label="Yes"
-                icon="pi pi-check"
-                severity="danger"
-                onClick={deleteCondition}
-            />
+            <Button label="No" icon="pi pi-times" outlined onClick={hideDeleteConditionsDialog} />
+            <Button label="Yes" icon="pi pi-check" severity="danger" onClick={deleteCondition} />
         </React.Fragment>
     );
 
     const conditionDialogFooter = (
         <React.Fragment>
-            <Button
-                label="Cancel"
-                icon="pi pi-times"
-                outlined
-                onClick={hideDialog}
-            />
+            <Button label="Cancel" icon="pi pi-times" outlined onClick={hideDialog} />
             <Button label="Save" icon="pi pi-check" onClick={saveCondition} />
         </React.Fragment>
     );
@@ -330,14 +307,7 @@ const ConditionsTable = (props: any) => {
     const leftToolbarTemplate = () => {
         return (
             <div className="flex flex-wrap gap-2">
-                <Button
-                    label="New"
-                    icon="pi pi-plus"
-                    outlined
-                    onClick={openNew}
-                    className="mb-2"
-                    disabled={!admin}
-                />
+                <Button label="New" icon="pi pi-plus" outlined onClick={openNew} className="mb-2" disabled={!admin} />
             </div>
         );
     };
@@ -345,19 +315,12 @@ const ConditionsTable = (props: any) => {
     const rightToolbarTemplate = () => {
         return (
             <>
-                <Button
-                    label="Export"
-                    icon="pi pi-upload"
-                    className="p-button-help mr-2"
-                    onClick={exportCSV}
-                />
+                <MultiSelect value={selectedStations} onChange={(e: any) => setSelectedStations(e.value)} options={stations} optionLabel="name" placeholder="Select Stations" maxSelectedLabels={3} className="w-full md:w-20rem mr-2" />
+                <Button label="Export" icon="pi pi-upload" className="p-button-help mr-2" onClick={exportCSV} />
 
-                <Button
-                    label="Admin"
-                    icon="pi pi-sliders-h"
-                    className="p-button-danger"
-                    onClick={openAdminDialog}
-                />
+                <Button label="Admin" icon="pi pi-sliders-h" className="p-button-danger" onClick={openAdminDialog} visible={!admin} />
+
+                <Button label="Logout" icon="pi pi-sliders-h" className="p-button-danger" onClick={logoutUser} visible={admin} />
             </>
         );
     };
@@ -374,22 +337,14 @@ const ConditionsTable = (props: any) => {
 
     const header = (
         <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
-            <InputText
-                type="search"
-                value={globalFilterValue}
-                onChange={onGlobalFilterChange}
-                placeholder="Search Airports or COPs"
-            />
+            <InputText type="search" value={globalFilterValue} onChange={onGlobalFilterChange} placeholder="Search Airports or COPs" />
         </div>
     );
 
     return (
         <>
             <Card header="LoA">
-                <Toolbar
-                    className="mb-4"
-                    left={leftToolbarTemplate}
-                    right={rightToolbarTemplate}></Toolbar>
+                <Toolbar className="mb-4" left={leftToolbarTemplate} right={rightToolbarTemplate}></Toolbar>
                 <DataTable
                     globalFilterFields={['aerodrome', 'cop']}
                     header={header}
@@ -403,99 +358,37 @@ const ConditionsTable = (props: any) => {
                     dataKey="_id"
                     stateKey="dt-conditions"
                     emptyMessage="No conditions found.">
-                    <Column
-                        filter
-                        filterField="aerodrome"
-                        body={rowData => aerodromeTemplate(rowData)}
-                        header="ADEP/ADES"
-                        headerStyle={{ width: '10%' }}></Column>
+                    <Column filter filterField="aerodrome" body={rowData => aerodromeTemplate(rowData)} header="ADEP/ADES" headerStyle={{ width: '10%' }}></Column>
                     <Column field="cop" header="COP"></Column>
-                    <Column
-                        body={rowData => levelTemplate(rowData)}
-                        header="Level"
-                        field="level"></Column>
-                    <Column
-                        style={{ width: '30%' }}
-                        field="special_conditions"
-                        header="Special Conditions"
-                    />
-                    <Column
-                        headerStyle={{ width: '10%' }}
-                        filter
-                        field="from_sector"
-                        header="From Sector"></Column>
-                    <Column
-                        headerStyle={{ maxWidth: '10%' }}
-                        filter
-                        field="to_sector"
-                        header="To Sector"></Column>
-                    <Column
-                        headerStyle={{ maxWidth: '10%' }}
-                        filter
-                        field="from_fir"
-                        header="From FIR"></Column>
-                    <Column
-                        headerStyle={{ maxWidth: '10%' }}
-                        filter
-                        field="to_fir"
-                        header="To FIR"></Column>
-                    <Column
-                        header="Admin"
-                        body={adminButtonTemplate}
-                        align="center"
-                        hidden={!admin}
-                    />
+                    <Column body={rowData => levelTemplate(rowData)} header="Level" field="level"></Column>
+                    <Column style={{ width: '30%' }} field="special_conditions" header="Special Conditions" />
+                    <Column headerStyle={{ width: '10%' }} filter field="from_sector" header="From Sector"></Column>
+                    <Column headerStyle={{ maxWidth: '10%' }} filter field="to_sector" header="To Sector"></Column>
+                    <Column headerStyle={{ maxWidth: '10%' }} filter field="from_fir" header="From FIR"></Column>
+                    <Column headerStyle={{ maxWidth: '10%' }} filter field="to_fir" header="To FIR"></Column>
+                    <Column header="Admin" body={adminButtonTemplate} align="center" hidden={!admin} />
                 </DataTable>
             </Card>
-            <Dialog
-                visible={addConditionDialog}
-                style={{ width: '48rem' }}
-                breakpoints={{ '960px': '75vw', '641px': '90vw' }}
-                header="Condition Details"
-                modal
-                className="p-fluid"
-                footer={conditionDialogFooter}
-                onHide={hideDialog}>
+            <Dialog visible={addConditionDialog} style={{ width: '48rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Condition Details" modal className="p-fluid" footer={conditionDialogFooter} onHide={hideDialog}>
                 <div className="formgrid grid">
                     <div className="field col-6">
                         <label htmlFor="aerodromes" className="font-bold">
                             Aerodromes
                         </label>
-                        <InputText
-                            id="aerodromes"
-                            placeholder="ICAO, ICAO, ... etc."
-                            value={condition.aerodrome}
-                            onChange={e => onInputChange(e, 'aerodrome')}
-                        />
+                        <InputText id="aerodromes" placeholder="ICAO, ICAO, ... etc." value={condition.aerodrome} onChange={e => onInputChange(e, 'aerodrome')} />
                     </div>
 
                     <div className="field col-6">
                         <label className="font-bold">ADEP/ADES</label>
                         <div className="flex flex-wrap gap-3">
                             <div className="flex align-items-center">
-                                <RadioButton
-                                    inputId="adep"
-                                    name="adep"
-                                    value="ADEP"
-                                    onChange={e =>
-                                        onRadioChange(e, 'adep_ades')
-                                    }
-                                    checked={condition.adep_ades === 'ADEP'}
-                                />
+                                <RadioButton inputId="adep" name="adep" value="ADEP" onChange={e => onRadioChange(e, 'adep_ades')} checked={condition.adep_ades === 'ADEP'} />
                                 <label htmlFor="adep" className="ml-2">
                                     Departure
                                 </label>
                             </div>
                             <div className="flex align-items-center">
-                                <RadioButton
-                                    inputId="adep"
-                                    name="ades"
-                                    value="ADES"
-                                    onChange={e =>
-                                        onRadioChange(e, 'adep_ades')
-                                    }
-                                    checked={condition.adep_ades === 'ADES'}
-                                />
+                                <RadioButton inputId="ades" name="ades" value="ADES" onChange={e => onRadioChange(e, 'adep_ades')} checked={condition.adep_ades === 'ADES'} />
                                 <label htmlFor="ades" className="ml-2">
                                     Destination
                                 </label>
@@ -509,31 +402,16 @@ const ConditionsTable = (props: any) => {
                         <label htmlFor="cop" className="font-bold">
                             COP
                         </label>
-                        <InputText
-                            id="cop"
-                            value={condition.cop}
-                            onChange={e => onInputChange(e, 'cop')}
-                            autoFocus
-                        />
+                        <InputText id="cop" value={condition.cop} onChange={e => onInputChange(e, 'cop')} autoFocus />
                     </div>
                     <div className="field col-3">
                         <label htmlFor="level" className="font-bold">
                             Level
                         </label>
                         <div className="p-inputgroup">
-                            <InputNumber
-                                id="level"
-                                value={condition.level}
-                                useGrouping={false}
-                                onChange={e => onInputNumberChange(e, 'level')}
-                                autoFocus
-                            />
+                            <InputNumber id="level" value={condition.level} useGrouping={false} onChange={e => onInputNumberChange(e, 'level')} autoFocus />
                             <span className="p-inputgroup-addon">
-                                <Checkbox
-                                    id="feet"
-                                    checked={condition.feet}
-                                    onChange={e => onCheckmarkChange(e)}
-                                />
+                                <Checkbox id="feet" checked={condition.feet} onChange={e => onCheckmarkChange(e)} />
                                 <label htmlFor="feet" className="ml-2">
                                     is feet
                                 </label>
@@ -544,37 +422,19 @@ const ConditionsTable = (props: any) => {
                         <label className="font-bold">Crossing Condition</label>
                         <div className="flex flex-wrap gap-3">
                             <div className="flex align-items-center">
-                                <RadioButton
-                                    inputId="climbing"
-                                    name="xc"
-                                    value="A"
-                                    onChange={e => onRadioChange(e, 'xc')}
-                                    checked={condition.xc === 'A'}
-                                />
+                                <RadioButton inputId="climbing" name="xc" value="A" onChange={e => onRadioChange(e, 'xc')} checked={condition.xc === 'A'} />
                                 <label htmlFor="climbing" className="ml-2">
                                     Climbing
                                 </label>
                             </div>
                             <div className="flex align-items-center">
-                                <RadioButton
-                                    inputId="descending"
-                                    name="xc"
-                                    value="B"
-                                    onChange={e => onRadioChange(e, 'xc')}
-                                    checked={condition.xc === 'B'}
-                                />
+                                <RadioButton inputId="descending" name="xc" value="B" onChange={e => onRadioChange(e, 'xc')} checked={condition.xc === 'B'} />
                                 <label htmlFor="descending" className="ml-2">
                                     Descending
                                 </label>
                             </div>
                             <div className="flex align-items-center">
-                                <RadioButton
-                                    inputId="none"
-                                    name="xc"
-                                    value={null}
-                                    onChange={e => onRadioChange(e, 'xc')}
-                                    checked={condition.xc === null}
-                                />
+                                <RadioButton inputId="none" name="xc" value={null} onChange={e => onRadioChange(e, 'xc')} checked={condition.xc === null} />
                                 <label htmlFor="none" className="ml-2">
                                     At level
                                 </label>
@@ -587,14 +447,7 @@ const ConditionsTable = (props: any) => {
                     <label htmlFor="special_conditions" className="font-bold">
                         Special Conditions
                     </label>
-                    <InputTextarea
-                        id="special_conditions"
-                        value={condition.special_conditions}
-                        onChange={e => onInputChange(e, 'special_conditions')}
-                        required
-                        rows={3}
-                        cols={20}
-                    />
+                    <InputTextarea id="special_conditions" value={condition.special_conditions} onChange={e => onInputChange(e, 'special_conditions')} required rows={3} cols={20} />
                 </div>
 
                 <div className="formgrid grid">
@@ -602,23 +455,13 @@ const ConditionsTable = (props: any) => {
                         <label htmlFor="from_sector" className="font-bold">
                             From Sector
                         </label>
-                        <InputText
-                            id="from_sector"
-                            placeholder="ex. GIN"
-                            value={condition.from_sector}
-                            onChange={e => onInputChange(e, 'from_sector')}
-                        />
+                        <InputText id="from_sector" placeholder="ex. GIN" value={condition.from_sector} onChange={e => onInputChange(e, 'from_sector')} />
                     </div>
                     <div className="field col-6">
                         <label htmlFor="to_sector" className="font-bold">
                             To Sector
                         </label>
-                        <InputText
-                            id="to_sector"
-                            placeholder="ex. FUL"
-                            value={condition.to_sector}
-                            onChange={e => onInputChange(e, 'to_sector')}
-                        />
+                        <InputText id="to_sector" placeholder="ex. FUL" value={condition.to_sector} onChange={e => onInputChange(e, 'to_sector')} />
                     </div>
                 </div>
                 <div className="formgrid grid">
@@ -626,52 +469,25 @@ const ConditionsTable = (props: any) => {
                         <label htmlFor="from_fir" className="font-bold">
                             From FIR
                         </label>
-                        <InputText
-                            id="from_fir"
-                            placeholder="ex. EDGG"
-                            value={condition.from_fir}
-                            onChange={e => onInputChange(e, 'from_fir')}
-                        />
+                        <InputText id="from_fir" placeholder="ex. EDGG" value={condition.from_fir} onChange={e => onInputChange(e, 'from_fir')} />
                     </div>
                     <div className="field col-6">
                         <label htmlFor="to_fir" className="font-bold">
                             To FIR
                         </label>
-                        <InputText
-                            id="to_fir"
-                            placeholder="ex. EDUU"
-                            value={condition.to_fir}
-                            onChange={e => onInputChange(e, 'to_fir')}
-                        />
+                        <InputText id="to_fir" placeholder="ex. EDUU" value={condition.to_fir} onChange={e => onInputChange(e, 'to_fir')} />
                     </div>
                 </div>
             </Dialog>
 
-            <Dialog
-                visible={deleteConditionDialog}
-                style={{ width: '32rem' }}
-                breakpoints={{ '960px': '75vw', '641px': '90vw' }}
-                header="Confirm"
-                modal
-                footer={deleteConditionsDialogFooter}
-                onHide={hideDeleteConditionsDialog}>
+            <Dialog visible={deleteConditionDialog} style={{ width: '32rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Confirm" modal footer={deleteConditionsDialogFooter} onHide={hideDeleteConditionsDialog}>
                 <div className="confirmation-content">
-                    <i
-                        className="pi pi-exclamation-triangle mr-3"
-                        style={{ fontSize: '2rem' }}
-                    />
-                    {condition && (
-                        <span>
-                            Are you sure you want to delete the selected
-                            Condition?
-                        </span>
-                    )}
+                    <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
+                    {condition && <span>Are you sure you want to delete the selected Condition?</span>}
                 </div>
             </Dialog>
             <Dialog visible={adminDialog} onHide={hideAdminDialog}>
-                <form
-                    onSubmit={form.handleSubmit(onSubmit)}
-                    className="flex flex-column gap-2">
+                <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-column gap-2">
                     <Controller
                         name="value"
                         control={form.control}

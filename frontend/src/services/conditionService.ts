@@ -12,7 +12,7 @@ async function getConditions() {
 
 async function deleteCondition(id: string | null) {
     try {
-        const response = await axios.delete('/api/v1/conditions/' + id);
+        const response = await axios.delete('/api/v1/conditions/' + id, { withCredentials: true });
         return response.data;
     } catch (error) {
         console.error(error);
@@ -22,7 +22,7 @@ async function deleteCondition(id: string | null) {
 
 async function addCondition(body: object) {
     try {
-        const response = await axios.post('/api/v1/conditions/', body);
+        const response = await axios.post('/api/v1/conditions/', body, { withCredentials: true });
         return response.data;
     } catch (error) {
         console.error(error);
@@ -32,7 +32,7 @@ async function addCondition(body: object) {
 
 async function updateCondition(id: string, body: object) {
     try {
-        await axios.patch('/api/v1/conditions/' + id, body);
+        await axios.patch('/api/v1/conditions/' + id, body, { withCredentials: true });
         return;
     } catch (error) {
         console.error(error);
