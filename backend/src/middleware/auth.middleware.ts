@@ -6,8 +6,6 @@ import config from '../config';
 export async function authMiddleware(req: Request, res: Response, next: NextFunction) {
     let loaToken = `${req?.cookies?.loa_token}`;
 
-    console.log('token is', loaToken);
-
     if (!loaToken) {
         return next(new APIError('token cookie must be set!', null, 400));
     }

@@ -1,4 +1,5 @@
 import * as dotenv from 'dotenv';
+import packageJson from '../package.json';
 
 dotenv.config();
 
@@ -7,6 +8,7 @@ interface loaViewerConfig {
     port: number;
     jwtSecret: string;
     adminPw: string | undefined;
+    version: string;
 }
 
 export default function config(): loaViewerConfig {
@@ -15,5 +17,6 @@ export default function config(): loaViewerConfig {
         port: Number(process.env.PORT) || 3000,
         jwtSecret: process.env.JWT_SECRET || 'superSecret',
         adminPw: process.env.ADMIN_PW,
+        version: packageJson.version ?? '',
     };
 }

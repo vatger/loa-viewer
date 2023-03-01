@@ -3,6 +3,7 @@ import conditionController from './controllers/condition.controller';
 import { NextFunction, Request, Response, Router } from 'express';
 import authController from './controllers/auth.controller';
 import authMiddleware from './middleware/auth.middleware';
+import metaController from './controllers/meta.controller';
 
 const router = Router();
 
@@ -15,6 +16,8 @@ router.patch('/conditions/:id', authMiddleware, conditionController.updateCondit
 router.post('/auth/login', authController.loginUser);
 router.get('/auth/logout', authController.logoutUser);
 router.get('/auth/profile', authMiddleware, authController.getUser);
+
+router.get('/version', metaController.getVersion);
 
 router.use((req: Request, res: Response, next: NextFunction) => next(new APIError('Not Found', null, 404)));
 

@@ -1,10 +1,6 @@
 import ConditionsTable from 'components/ConditionsTable';
-import {
-    BrowserRouter as Router,
-    Routes,
-    Route,
-    Navigate,
-} from 'react-router-dom';
+import Footer from 'components/Footer';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import './App.css';
 
 function App() {
@@ -16,6 +12,7 @@ function App() {
                     <Route path="/" element={<ConditionsTable />} />
                     <Route path="*" element={<Navigate to="/" />} />
                 </Routes>
+                <Footer />
             </Router>
         </>
     );

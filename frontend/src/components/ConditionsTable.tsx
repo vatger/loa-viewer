@@ -5,7 +5,7 @@ import { InputNumber, InputNumberChangeEvent } from 'primereact/inputnumber';
 import { RadioButton, RadioButtonChangeEvent } from 'primereact/radiobutton';
 import { Checkbox, CheckboxChangeEvent } from 'primereact/checkbox';
 import { DataTable, DataTableFilterMeta, DataTableRowEditCompleteEvent } from 'primereact/datatable';
-import { Column, ColumnEditorOptions } from 'primereact/column';
+import { Column, ColumnEditorOptions, ColumnFilterElementTemplateOptions } from 'primereact/column';
 import conditionService from 'services/conditionService';
 import { FilterMatchMode, FilterOperator } from 'primereact/api';
 import { Card } from 'primereact/card';
@@ -20,6 +20,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { classNames } from 'primereact/utils';
 import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
 import authService from 'services/authService';
+import Condition from '@shared/interfaces/condition.interface';
 
 const ConditionsTable = (props: any) => {
     const newEmptyCondition = {
@@ -59,6 +60,13 @@ const ConditionsTable = (props: any) => {
     const form = useForm({ defaultValues });
     const errors = form.formState.errors;
 
+    const [selectedStations, setSelectedStations] = useState<Station | null>(null);
+    const stations: Station[] = [{ name: 'EDGG_KTG_CTR', code: ['KTG', 'DKB', 'STG'] }];
+    const [fromSectors, setFromSectors] = useState<Object[]>([]);
+    const [toSectors, setToSectors] = useState<Object[]>([]);
+    const [fromFir, setFromFir] = useState<Object[]>([]);
+    const [toFir, setToFir] = useState<Object[]>([]);
+
     const [filters, setFilters] = useState<any>({
         global: { value: null, matchMode: FilterMatchMode.CONTAINS },
         aerodrome: {
@@ -67,29 +75,26 @@ const ConditionsTable = (props: any) => {
         },
         cop: { value: null, matchMode: FilterMatchMode.CONTAINS },
         level: { value: null, matchMode: FilterMatchMode.CONTAINS },
-        from_sector: {
-            operator: FilterOperator.OR,
-            constraints: [{ value: null, matchMode: FilterMatchMode.CONTAINS }],
-        },
-        to_sector: {
-            operator: FilterOperator.OR,
-            constraints: [{ value: null, matchMode: FilterMatchMode.CONTAINS }],
-        },
-        from_fir: {
-            operator: FilterOperator.OR,
-            constraints: [{ value: null, matchMode: FilterMatchMode.CONTAINS }],
-        },
-        to_fir: {
-            operator: FilterOperator.OR,
-            constraints: [{ value: null, matchMode: FilterMatchMode.CONTAINS }],
-        },
+        from_sector: { value: null, matchMode: FilterMatchMode.IN },
+        to_sector: { value: null, matchMode: FilterMatchMode.IN },
+        from_fir: { value: null, matchMode: FilterMatchMode.IN },
+        to_fir: { value: null, matchMode: FilterMatchMode.IN },
     });
 
-    const [selectedStations, setSelectedStations] = useState<Station | null>(null);
-    const stations: Station[] = [{ name: 'EDGG_KTG_CTR', code: ['KTG', 'DKB', 'STG'] }];
-
     useEffect(() => {
-        conditionService.getConditions().then((data: any[]) => {
+        conditionService.getConditions().then((data: FrontendCondition[]) => {
+            data.forEach((element: Condition) => {
+                fromSectors.findIndex((sector: any) => sector.name === element.from_sector) === -1 && fromSectors.push({ name: element.from_sector, value: element.from_sector });
+                toSectors.findIndex((sector: any) => sector.name === element.to_sector) === -1 && toSectors.push({ name: element.to_sector, value: element.to_sector });
+                fromFir.findIndex((sector: any) => sector.name === element.from_fir) === -1 && fromFir.push({ name: element.from_fir, value: element.from_fir });
+                toFir.findIndex((sector: any) => sector.name === element.to_fir) === -1 && toFir.push({ name: element.to_fir, value: element.to_fir });
+            });
+
+            fromSectors.sort(customSort);
+            toSectors.sort(customSort);
+            fromFir.sort(customSort);
+            toFir.sort(customSort);
+
             setConditions(data);
             setLoading(false);
         });
@@ -101,6 +106,20 @@ const ConditionsTable = (props: any) => {
             })
             .catch(e => {});
     }, []);
+
+    function customSort(a: any, b: any) {
+        let fa = a.name,
+            fb = b.name;
+
+        if (fa < fb) {
+            return -1;
+        }
+
+        if (fa > fb) {
+            return 1;
+        }
+        return 0;
+    }
 
     const levelTemplate = (option: any) => {
         if (option.xc === 'A') {
@@ -315,7 +334,7 @@ const ConditionsTable = (props: any) => {
     const rightToolbarTemplate = () => {
         return (
             <>
-                <MultiSelect value={selectedStations} onChange={(e: any) => setSelectedStations(e.value)} options={stations} optionLabel="name" placeholder="Select Stations" maxSelectedLabels={3} className="w-full md:w-20rem mr-2" />
+                {/* <MultiSelect value={selectedStations} onChange={(e: any) => setSelectedStations(e.value)} options={stations} optionLabel="name" placeholder="Select Stations" maxSelectedLabels={3} className="w-full md:w-20rem mr-2" /> */}
                 <Button label="Export" icon="pi pi-upload" className="p-button-help mr-2" onClick={exportCSV} />
 
                 <Button label="Admin" icon="pi pi-sliders-h" className="p-button-danger" onClick={openAdminDialog} visible={!admin} />
@@ -329,10 +348,28 @@ const ConditionsTable = (props: any) => {
         const value = e.target.value;
         let _filters = { ...filters };
 
+        console.log(_filters);
+
         _filters['global'].value = value;
 
         setFilters(_filters);
         setGlobalFilterValue(value);
+    };
+
+    const fromSectorFilterTemplate = (options: ColumnFilterElementTemplateOptions) => {
+        return <MultiSelect value={options.value} options={fromSectors} onChange={(e: MultiSelectChangeEvent) => options.filterCallback(e.value)} optionLabel="name" placeholder="Any" className="p-column-filter" />;
+    };
+
+    const toSectorFilterTemplate = (options: ColumnFilterElementTemplateOptions) => {
+        return <MultiSelect value={options.value} options={toSectors} onChange={(e: MultiSelectChangeEvent) => options.filterCallback(e.value)} optionLabel="name" placeholder="Any" className="p-column-filter" />;
+    };
+
+    const fromFirFilterTemplate = (options: ColumnFilterElementTemplateOptions) => {
+        return <MultiSelect value={options.value} options={fromFir} onChange={(e: MultiSelectChangeEvent) => options.filterCallback(e.value)} optionLabel="name" placeholder="Any" className="p-column-filter" />;
+    };
+
+    const toFirFilterTemplate = (options: ColumnFilterElementTemplateOptions) => {
+        return <MultiSelect value={options.value} options={toFir} onChange={(e: MultiSelectChangeEvent) => options.filterCallback(e.value)} optionLabel="name" placeholder="Any" className="p-column-filter" />;
     };
 
     const header = (
@@ -343,7 +380,7 @@ const ConditionsTable = (props: any) => {
 
     return (
         <>
-            <Card header="LoA">
+            <Card>
                 <Toolbar className="mb-4" left={leftToolbarTemplate} right={rightToolbarTemplate}></Toolbar>
                 <DataTable
                     globalFilterFields={['aerodrome', 'cop']}
@@ -357,15 +394,16 @@ const ConditionsTable = (props: any) => {
                     filters={filters}
                     dataKey="_id"
                     stateKey="dt-conditions"
+                    size="small"
                     emptyMessage="No conditions found.">
-                    <Column filter filterField="aerodrome" body={rowData => aerodromeTemplate(rowData)} header="ADEP/ADES" headerStyle={{ width: '10%' }}></Column>
-                    <Column field="cop" header="COP"></Column>
+                    <Column field="aerodrome" body={rowData => aerodromeTemplate(rowData)} header="ADEP/ADES" headerStyle={{ width: '10%' }}></Column>
+                    <Column field="cop" header="COP" filter></Column>
                     <Column body={rowData => levelTemplate(rowData)} header="Level" field="level"></Column>
                     <Column style={{ width: '30%' }} field="special_conditions" header="Special Conditions" />
-                    <Column headerStyle={{ width: '10%' }} filter field="from_sector" header="From Sector"></Column>
-                    <Column headerStyle={{ maxWidth: '10%' }} filter field="to_sector" header="To Sector"></Column>
-                    <Column headerStyle={{ maxWidth: '10%' }} filter field="from_fir" header="From FIR"></Column>
-                    <Column headerStyle={{ maxWidth: '10%' }} filter field="to_fir" header="To FIR"></Column>
+                    <Column headerStyle={{ width: '10%' }} filter filterElement={fromSectorFilterTemplate} showFilterMatchModes={false} field="from_sector" header="From Sector"></Column>
+                    <Column headerStyle={{ maxWidth: '10%' }} filter filterElement={toSectorFilterTemplate} showFilterMatchModes={false} field="to_sector" header="To Sector"></Column>
+                    <Column headerStyle={{ maxWidth: '10%' }} filter filterElement={fromFirFilterTemplate} showFilterMatchModes={false} field="from_fir" header="From FIR"></Column>
+                    <Column headerStyle={{ maxWidth: '10%' }} filter filterElement={toFirFilterTemplate} showFilterMatchModes={false} field="to_fir" header="To FIR"></Column>
                     <Column header="Admin" body={adminButtonTemplate} align="center" hidden={!admin} />
                 </DataTable>
             </Card>
