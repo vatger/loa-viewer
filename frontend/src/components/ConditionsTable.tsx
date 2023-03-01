@@ -21,6 +21,9 @@ import { classNames } from 'primereact/utils';
 import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
 import authService from 'services/authService';
 import Condition from '@shared/interfaces/condition.interface';
+import stationMapping from '../station_mapping.json';
+import axios from 'axios';
+import datafeedService from 'services/datafeedService';
 
 const ConditionsTable = (props: any) => {
     const newEmptyCondition = {
@@ -62,24 +65,13 @@ const ConditionsTable = (props: any) => {
 
     const [selectedStations, setSelectedStations] = useState<Station | null>(null);
     const stations: Station[] = [{ name: 'EDGG_KTG_CTR', code: ['KTG', 'DKB', 'STG'] }];
+    const [vid, setVid] = useState<number | null>();
     const [fromSectors, setFromSectors] = useState<Object[]>([]);
     const [toSectors, setToSectors] = useState<Object[]>([]);
     const [fromFir, setFromFir] = useState<Object[]>([]);
     const [toFir, setToFir] = useState<Object[]>([]);
 
-    const [filters, setFilters] = useState<any>({
-        global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-        aerodrome: {
-            operator: FilterOperator.OR,
-            constraints: [{ value: null, matchMode: FilterMatchMode.CONTAINS }],
-        },
-        cop: { value: null, matchMode: FilterMatchMode.CONTAINS },
-        level: { value: null, matchMode: FilterMatchMode.CONTAINS },
-        from_sector: { value: null, matchMode: FilterMatchMode.IN },
-        to_sector: { value: null, matchMode: FilterMatchMode.IN },
-        from_fir: { value: null, matchMode: FilterMatchMode.IN },
-        to_fir: { value: null, matchMode: FilterMatchMode.IN },
-    });
+    const [filters, setFilters] = useState<any>();
 
     useEffect(() => {
         conditionService.getConditions().then((data: FrontendCondition[]) => {
@@ -97,6 +89,7 @@ const ConditionsTable = (props: any) => {
 
             setConditions(data);
             setLoading(false);
+            initFilters();
         });
 
         authService
@@ -120,6 +113,23 @@ const ConditionsTable = (props: any) => {
         }
         return 0;
     }
+
+    const initFilters = () => {
+        setGlobalFilterValue('');
+        setFilters({
+            global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+            aerodrome: {
+                operator: FilterOperator.OR,
+                constraints: [{ value: null, matchMode: FilterMatchMode.CONTAINS }],
+            },
+            cop: { value: null, matchMode: FilterMatchMode.CONTAINS },
+            level: { value: null, matchMode: FilterMatchMode.CONTAINS },
+            from_sector: { value: null, matchMode: FilterMatchMode.IN },
+            to_sector: { value: null, matchMode: FilterMatchMode.IN },
+            from_fir: { value: null, matchMode: FilterMatchMode.IN },
+            to_fir: { value: null, matchMode: FilterMatchMode.IN },
+        });
+    };
 
     const levelTemplate = (option: any) => {
         if (option.xc === 'A') {
@@ -327,8 +337,44 @@ const ConditionsTable = (props: any) => {
         return (
             <div className="flex flex-wrap gap-2">
                 <Button label="New" icon="pi pi-plus" outlined onClick={openNew} className="mb-2" disabled={!admin} />
+                <div className="p-inputgroup mr-2">
+                    <InputNumber onValueChange={e => setVid(e.value)} useGrouping={false} placeholder="Enter CID" style={{ width: '5rem' }} />
+                    <Button label="Apply" onClick={searchVid} />
+                </div>
             </div>
         );
+    };
+
+    const searchVid = async () => {
+        let _stationFilter = { ...filters };
+
+        if (!vid) {
+            _stationFilter['from_sector'].value = [];
+            setFilters(_stationFilter);
+        } else {
+            try {
+                const dataFeed = await datafeedService.getRawDatafeed();
+
+                const station = dataFeed.controllers.filter(element => element.cid === vid);
+
+                if (station.length > 0) {
+                    const filteredStation = stationMapping.filter(element => element.frequency === station[0].frequency);
+
+                    _stationFilter['from_sector'].value = filteredStation[0].stationFilter;
+
+                    setFilters(_stationFilter);
+                } else {
+                    toast.current?.show({
+                        severity: 'error',
+                        summary: 'No Station found',
+                        detail: `for the entered CID`,
+                        life: 3000,
+                    });
+                }
+            } catch (error) {
+                console.log(error);
+            }
+        }
     };
 
     const rightToolbarTemplate = () => {
@@ -336,9 +382,7 @@ const ConditionsTable = (props: any) => {
             <>
                 {/* <MultiSelect value={selectedStations} onChange={(e: any) => setSelectedStations(e.value)} options={stations} optionLabel="name" placeholder="Select Stations" maxSelectedLabels={3} className="w-full md:w-20rem mr-2" /> */}
                 <Button label="Export" icon="pi pi-upload" className="p-button-help mr-2" onClick={exportCSV} />
-
                 <Button label="Admin" icon="pi pi-sliders-h" className="p-button-danger" onClick={openAdminDialog} visible={!admin} />
-
                 <Button label="Logout" icon="pi pi-sliders-h" className="p-button-danger" onClick={logoutUser} visible={admin} />
             </>
         );
@@ -384,6 +428,7 @@ const ConditionsTable = (props: any) => {
     const header = (
         <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
             <InputText type="search" value={globalFilterValue} onChange={onGlobalFilterChange} placeholder="Search Airports or COPs" />
+            <Button label="Reset Filters" className="p-buttonmr-2" onClick={initFilters} />
         </div>
     );
 
