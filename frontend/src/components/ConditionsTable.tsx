@@ -356,6 +356,15 @@ const ConditionsTable = (props: any) => {
         setGlobalFilterValue(value);
     };
 
+    const onApplyFilter = (e: any) => {
+        console.log(e);
+        let _filters = { ...filters };
+
+        _filters[`${e.field}`].value = e.constraints.value;
+
+        setFilters(_filters);
+    };
+
     const fromSectorFilterTemplate = (options: ColumnFilterElementTemplateOptions) => {
         return <MultiSelect value={options.value} options={fromSectors} onChange={(e: MultiSelectChangeEvent) => options.filterCallback(e.value)} optionLabel="name" placeholder="Any" className="p-column-filter" />;
     };
@@ -400,10 +409,10 @@ const ConditionsTable = (props: any) => {
                     <Column field="cop" header="COP" filter></Column>
                     <Column body={rowData => levelTemplate(rowData)} header="Level" field="level"></Column>
                     <Column style={{ width: '30%' }} field="special_conditions" header="Special Conditions" />
-                    <Column headerStyle={{ width: '10%' }} filter filterElement={fromSectorFilterTemplate} showFilterMatchModes={false} field="from_sector" header="From Sector"></Column>
-                    <Column headerStyle={{ maxWidth: '10%' }} filter filterElement={toSectorFilterTemplate} showFilterMatchModes={false} field="to_sector" header="To Sector"></Column>
-                    <Column headerStyle={{ maxWidth: '10%' }} filter filterElement={fromFirFilterTemplate} showFilterMatchModes={false} field="from_fir" header="From FIR"></Column>
-                    <Column headerStyle={{ maxWidth: '10%' }} filter filterElement={toFirFilterTemplate} showFilterMatchModes={false} field="to_fir" header="To FIR"></Column>
+                    <Column headerStyle={{ width: '10%' }} filter filterElement={fromSectorFilterTemplate} onFilterApplyClick={e => onApplyFilter(e)} showFilterMatchModes={false} field="from_sector" header="From Sector"></Column>
+                    <Column headerStyle={{ maxWidth: '10%' }} filter filterElement={toSectorFilterTemplate} onFilterApplyClick={e => onApplyFilter(e)} showFilterMatchModes={false} field="to_sector" header="To Sector"></Column>
+                    <Column headerStyle={{ maxWidth: '10%' }} filter filterElement={fromFirFilterTemplate} onFilterApplyClick={e => onApplyFilter(e)} showFilterMatchModes={false} field="from_fir" header="From FIR"></Column>
+                    <Column headerStyle={{ maxWidth: '10%' }} filter filterElement={toFirFilterTemplate} onFilterApplyClick={e => onApplyFilter(e)} showFilterMatchModes={false} field="to_fir" header="To FIR"></Column>
                     <Column header="Admin" body={adminButtonTemplate} align="center" hidden={!admin} />
                 </DataTable>
             </Card>
