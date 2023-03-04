@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
-import { InputNumber, InputNumberChangeEvent } from 'primereact/inputnumber';
+import { InputNumber } from 'primereact/inputnumber';
 import { RadioButton, RadioButtonChangeEvent } from 'primereact/radiobutton';
 import { Checkbox, CheckboxChangeEvent } from 'primereact/checkbox';
-import { DataTable, DataTableFilterMeta, DataTableRowEditCompleteEvent } from 'primereact/datatable';
-import { Column, ColumnEditorOptions, ColumnFilterElementTemplateOptions } from 'primereact/column';
+import { DataTable } from 'primereact/datatable';
+import { Column, ColumnFilterElementTemplateOptions } from 'primereact/column';
 import conditionService from 'services/conditionService';
 import { FilterMatchMode, FilterOperator } from 'primereact/api';
 import { Card } from 'primereact/card';
@@ -22,7 +22,6 @@ import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
 import authService from 'services/authService';
 import Condition from '@shared/interfaces/condition.interface';
 import stationMapping from '../station_mapping.json';
-import axios from 'axios';
 import datafeedService from 'services/datafeedService';
 
 const ConditionsTable = (props: any) => {
@@ -360,9 +359,20 @@ const ConditionsTable = (props: any) => {
                 if (station.length > 0) {
                     const filteredStation = stationMapping.filter(element => element.frequency === station[0].frequency);
 
-                    _stationFilter['from_sector'].value = filteredStation[0].stationFilter;
+                    if (filteredStation.length === 0) {
+                        toast.current?.show({
+                            severity: 'error',
+                            summary: 'No filter preset found',
+                            detail: `No filter is defined for your station`,
+                            life: 3000,
+                        });
+                    } else {
 
-                    setFilters(_stationFilter);
+                        _stationFilter['from_sector'].value = filteredStation[0].stationFilter;
+    
+                        setFilters(_stationFilter);
+                    }
+
                 } else {
                     toast.current?.show({
                         severity: 'error',
@@ -451,7 +461,7 @@ const ConditionsTable = (props: any) => {
                     size="small"
                     emptyMessage="No conditions found.">
                     <Column field="aerodrome" body={rowData => aerodromeTemplate(rowData)} header="ADEP/ADES" headerStyle={{ width: '10%' }}></Column>
-                    <Column field="cop" header="COP" filter></Column>
+                    <Column field="cop" header="COP" ></Column>
                     <Column body={rowData => levelTemplate(rowData)} header="Level" field="level"></Column>
                     <Column style={{ width: '30%' }} field="special_conditions" header="Special Conditions" />
                     <Column headerStyle={{ width: '10%' }} filter filterElement={fromSectorFilterTemplate} onFilterApplyClick={e => onApplyFilter(e)} showFilterMatchModes={false} field="from_sector" header="From Sector"></Column>
