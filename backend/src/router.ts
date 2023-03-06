@@ -5,6 +5,7 @@ import authController from './controllers/auth.controller';
 import authMiddleware from './middleware/auth.middleware';
 import metaController from './controllers/meta.controller';
 import datafeedController from './controllers/datafeed.controller';
+import stationMappingController from './controllers/stationMapping.controller';
 
 const router = Router();
 
@@ -15,6 +16,7 @@ router.delete('/conditions/:id', authMiddleware, conditionController.deleteCondi
 router.patch('/conditions/:id', authMiddleware, conditionController.updateCondition);
 
 router.get('/datafeed', datafeedController.getDataFeed);
+router.get('/stationMappings', stationMappingController.getStationMappings);
 
 router.post('/auth/login', authController.loginUser);
 router.get('/auth/logout', authController.logoutUser);

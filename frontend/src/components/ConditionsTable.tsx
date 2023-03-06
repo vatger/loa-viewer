@@ -21,9 +21,9 @@ import { classNames } from 'primereact/utils';
 import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
 import authService from 'services/authService';
 import Condition from '@shared/interfaces/condition.interface';
-import stationMapping from '../station_mapping.json';
-import axios from 'axios';
+
 import datafeedService from 'services/datafeedService';
+import filterMappingService from 'services/filterMappingService';
 
 const ConditionsTable = (props: any) => {
     const newEmptyCondition = {
@@ -358,7 +358,9 @@ const ConditionsTable = (props: any) => {
                 const station = dataFeed.controllers.filter(element => element.cid === vid);
 
                 if (station.length > 0) {
-                    const filteredStation = stationMapping.filter(element => element.frequency === station[0].frequency);
+                    const stationMapping: any = await filterMappingService.getFilters();
+
+                    const filteredStation = stationMapping.filter((element: any) => element.frequency === station[0].frequency);
 
                     _stationFilter['from_sector'].value = filteredStation[0].stationFilter;
 
