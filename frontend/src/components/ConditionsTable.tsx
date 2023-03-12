@@ -423,19 +423,19 @@ const ConditionsTable = (props: any) => {
     };
 
     const fromSectorFilterTemplate = (options: ColumnFilterElementTemplateOptions) => {
-        return <MultiSelect value={options.value} options={fromSectors} onChange={(e: MultiSelectChangeEvent) => options.filterCallback(e.value)} optionLabel="name" placeholder="Any" className="p-column-filter" />;
+        return <MultiSelect value={options.value} options={fromSectors} onChange={(e: MultiSelectChangeEvent) => options.filterCallback(e.value)} filter optionLabel="name" placeholder="Any" className="p-column-filter" />;
     };
 
     const toSectorFilterTemplate = (options: ColumnFilterElementTemplateOptions) => {
-        return <MultiSelect value={options.value} options={toSectors} onChange={(e: MultiSelectChangeEvent) => options.filterCallback(e.value)} optionLabel="name" placeholder="Any" className="p-column-filter" />;
+        return <MultiSelect value={options.value} options={toSectors} onChange={(e: MultiSelectChangeEvent) => options.filterCallback(e.value)} filter optionLabel="name" placeholder="Any" className="p-column-filter" />;
     };
 
     const fromFirFilterTemplate = (options: ColumnFilterElementTemplateOptions) => {
-        return <MultiSelect value={options.value} options={fromFir} onChange={(e: MultiSelectChangeEvent) => options.filterCallback(e.value)} optionLabel="name" placeholder="Any" className="p-column-filter" />;
+        return <MultiSelect value={options.value} options={fromFir} onChange={(e: MultiSelectChangeEvent) => options.filterCallback(e.value)} filter optionLabel="name" placeholder="Any" className="p-column-filter" />;
     };
 
     const toFirFilterTemplate = (options: ColumnFilterElementTemplateOptions) => {
-        return <MultiSelect value={options.value} options={toFir} onChange={(e: MultiSelectChangeEvent) => options.filterCallback(e.value)} optionLabel="name" placeholder="Any" className="p-column-filter" />;
+        return <MultiSelect value={options.value} options={toFir} onChange={(e: MultiSelectChangeEvent) => options.filterCallback(e.value)} filter optionLabel="name" placeholder="Any" className="p-column-filter" />;
     };
 
     const header = (
