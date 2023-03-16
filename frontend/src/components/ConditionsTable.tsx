@@ -133,11 +133,11 @@ const ConditionsTable = (props: any) => {
 
     const levelTemplate = (option: any) => {
         if (option.xc === 'A') {
-            return <>{'\u2191 ' + option.level}</>;
+            return option.feet ? <>{'\u2191 ' + option.level + '00ft'}</> : <>{'\u2191 ' + option.level}</>;
         } else if (option.xc === 'B') {
-            return <>{'\u2193 ' + option.level} </>;
+            return option.feet ? <>{'\u2193 ' + option.level + '00ft'}</> : <>{'\u2193 ' + option.level}</>;
         } else {
-            return option.level;
+            return option.feet ? option.level + '00ft' : option.level;
         }
     };
 
@@ -370,12 +370,10 @@ const ConditionsTable = (props: any) => {
                             life: 3000,
                         });
                     } else {
-
                         _stationFilter['from_sector'].value = filteredStation[0].stationFilter;
-    
+
                         setFilters(_stationFilter);
                     }
-
                 } else {
                     toast.current?.show({
                         severity: 'error',
@@ -464,7 +462,7 @@ const ConditionsTable = (props: any) => {
                     size="small"
                     emptyMessage="No conditions found.">
                     <Column field="aerodrome" body={rowData => aerodromeTemplate(rowData)} header="ADEP/ADES" headerStyle={{ width: '10%' }}></Column>
-                    <Column field="cop" header="COP" ></Column>
+                    <Column field="cop" header="COP"></Column>
                     <Column body={rowData => levelTemplate(rowData)} header="Level" field="level"></Column>
                     <Column style={{ width: '30%' }} field="special_conditions" header="Special Conditions" />
                     <Column headerStyle={{ width: '10%' }} filter filterElement={fromSectorFilterTemplate} onFilterApplyClick={e => onApplyFilter(e)} showFilterMatchModes={false} field="from_sector" header="From Sector"></Column>
