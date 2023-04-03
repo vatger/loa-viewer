@@ -25,3 +25,7 @@
   z-index: 102;
   background-color: #0e1315;
   }
+
+  .footer-end {
+    align-content: end;
+  }
