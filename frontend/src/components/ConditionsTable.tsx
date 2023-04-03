@@ -248,7 +248,7 @@ const ConditionsTable = (props: any) => {
         }
 
         setConditions(_conditions);
-        setAddConditionDialog(false);
+        //setAddConditionDialog(false);
         setCondition(newEmptyCondition);
     };
 
@@ -284,7 +284,7 @@ const ConditionsTable = (props: any) => {
     const onCheckmarkChange = (e: CheckboxChangeEvent) => {
         let _condition = { ...condition };
 
-        _condition.feet = e.checked ?? false;
+        _condition.feet = e.checked ? true : false;
         setCondition(_condition);
     };
 
@@ -478,7 +478,7 @@ const ConditionsTable = (props: any) => {
                         <label htmlFor="aerodromes" className="font-bold">
                             Aerodromes
                         </label>
-                        <InputText id="aerodromes" placeholder="ICAO, ICAO, ... etc." value={condition.aerodrome} onChange={e => onInputChange(e, 'aerodrome')} />
+                        <InputText id="aerodromes" placeholder="ICAO, ICAO, ... etc." value={condition.aerodrome} onChange={e => onInputChange(e, 'aerodrome')} autoFocus />
                     </div>
 
                     <div className="field col-6">
@@ -505,14 +505,14 @@ const ConditionsTable = (props: any) => {
                         <label htmlFor="cop" className="font-bold">
                             COP
                         </label>
-                        <InputText id="cop" value={condition.cop} onChange={e => onInputChange(e, 'cop')} autoFocus />
+                        <InputText id="cop" value={condition.cop} onChange={e => onInputChange(e, 'cop')} />
                     </div>
                     <div className="field col-3">
                         <label htmlFor="level" className="font-bold">
                             Level
                         </label>
                         <div className="p-inputgroup">
-                            <InputNumber id="level" value={condition.level} useGrouping={false} onChange={e => onInputNumberChange(e, 'level')} autoFocus />
+                            <InputNumber id="level" value={condition.level} useGrouping={false} onChange={e => onInputNumberChange(e, 'level')} />
                             <span className="p-inputgroup-addon">
                                 <Checkbox id="feet" checked={condition.feet} onChange={e => onCheckmarkChange(e)} />
                                 <label htmlFor="feet" className="ml-2">
