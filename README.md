@@ -5,9 +5,9 @@ It is intended to improve the searchability of letter of agreements by allowing 
 
 ## Contact
 
-| Name |  Responsible for   |                     Contact                     |
-| :--: | :----------------: | :---------------------------------------------: |
-|  MF  | Frontend & Backend | `email@example.com` or `Example#1234` (Discord) |
+|        Name         | Responsible for |    Contact    |
+| :-----------------: | :-------------: | :-----------: |
+| Moritz F. - 1234027 |       \*        | nav@vatger.de |
 
 ## Prerequisites
 
