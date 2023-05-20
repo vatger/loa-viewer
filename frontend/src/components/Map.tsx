@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, MapContainerProps, TileLayerProps } from 'reac
 import 'leaflet/dist/leaflet.css';
 import { FrontendCondition } from 'interfaces/condition.interface';
 import { InputText } from 'primereact/inputtext';
+import useDebounce from 'hooks/useDebounce';
 
 export default function Map() {
     const [conditions, setConditions] = useState<FrontendCondition[]>([]);
@@ -15,6 +16,10 @@ export default function Map() {
             setSearch('GIN');
         }
     }, [search]);
+
+    const debounceSearch = useDebounce(search, 500);
+    useEffect(() => {
+    }, [debounceSearch]);
 
     return (
         <>
