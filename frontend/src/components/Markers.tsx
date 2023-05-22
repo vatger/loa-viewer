@@ -65,7 +65,7 @@ function ConditionTableIcon({ zoom, conditions }: PropsTable) {
     const agreements = conditions.conditions;
 
     return (
-        <table style={tableStyle}>
+        <table className="map-table-style" style={tableStyle}>
             <thead>
                 <tr>
                     <th className="center" colSpan={5} />

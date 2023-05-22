@@ -30,12 +30,14 @@
   align-content: end;
 }
 
-table {
+.map-table-style {
   border-collapse: collapse;
-    width: 100%;
+  width: 100%;
 }
-td, th {
-  padding: 5px; 
+
+.map-table-style td,
+.map-table-style th {
+  padding: 5px;
   white-space: nowrap;
   text-align: left;
 }
