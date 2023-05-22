@@ -6,6 +6,7 @@ import authMiddleware from './middleware/auth.middleware';
 import metaController from './controllers/meta.controller';
 import datafeedController from './controllers/datafeed.controller';
 import stationMappingController from './controllers/stationMapping.controller';
+import waypointController from './controllers/waypoint.controller';
 
 const router = Router();
 
@@ -14,6 +15,8 @@ router.post('/conditions', authMiddleware, conditionController.addCondition);
 router.get('/conditions/:id', authMiddleware, conditionController.getCondition);
 router.delete('/conditions/:id', authMiddleware, conditionController.deleteCondition);
 router.patch('/conditions/:id', authMiddleware, conditionController.updateCondition);
+
+router.get('/waypoints', waypointController.getAllWaypoints);
 
 router.get('/datafeed', datafeedController.getDataFeed);
 router.get('/stationMappings', stationMappingController.getStationMappings);
