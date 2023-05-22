@@ -1,25 +1,59 @@
-import React, { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, MapContainerProps, TileLayerProps } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
+import useDebounce from 'hooks/useDebounce';
 import { FrontendCondition } from 'interfaces/condition.interface';
 import { InputText } from 'primereact/inputtext';
-import useDebounce from 'hooks/useDebounce';
+import { useEffect, useState } from 'react';
+import { MapContainer, TileLayer } from 'react-leaflet';
+import conditionService from 'services/conditionService';
+import filterConditionsService from 'services/filterConditions.service';
+import groupConditionsByCop from 'services/groupConditions.service';
+import 'leaflet/dist/leaflet.css';
+import Markers from './Markers';
+import { WaypointRecord } from 'interfaces/waypointRecord.interface';
 
-export default function Map() {
+export default function LoaViewerMap() {
     const [conditions, setConditions] = useState<FrontendCondition[]>([]);
-    const [filteredConditions, setFilteredConditions] = useState<Record<string, FrontendCondition[]>>();
-    const [search, setSearch] = useState<string>('GIN');
+    const [drawnConditions, setDrawnConditions] = useState<WaypointRecord[]>([]);
+    const [searchInput, setSearchInput] = useState<string>('GIN');
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // set default search if nothing is inputted
-        if (search === '') {
-            setSearch('GIN');
+        conditionService.getConditions().then((data: FrontendCondition[]) => {
+            const convertedData: FrontendCondition[] = data.map((element: FrontendCondition) => {
+                return {
+                    _id: element._id,
+                    aerodrome: element.aerodrome,
+                    adep_ades: element.adep_ades,
+                    cop: element.cop,
+                    level: element.level,
+                    feet: element.feet,
+                    xc: element.xc,
+                    special_conditions: element.special_conditions,
+                    from_sector: element.from_sector,
+                    to_sector: element.to_sector,
+                    from_fir: element.from_fir,
+                    to_fir: element.to_fir,
+                };
+            });
+            setConditions(convertedData);
+            setLoading(false);
+        });
+    }, []);
+
+    useEffect(() => {
+        if (searchInput === '' || searchInput.length < 2) {
+            setSearchInput('GIN');
         }
-    }, [search]);
+    }, [searchInput]);
 
-    const debounceSearch = useDebounce(search, 500);
+    const debounceSearch = useDebounce(searchInput, 500);
     useEffect(() => {
-    }, [debounceSearch]);
+        if (!loading) {
+            const searchConditions = filterConditionsService(conditions, searchInput);
+            groupConditionsByCop(searchConditions).then(groupedConditions => {
+                setDrawnConditions(groupedConditions);
+            });
+        }
+    }, [debounceSearch, loading]);
 
     return (
         <>
@@ -27,7 +61,7 @@ export default function Map() {
                 <InputText
                     type="search"
                     placeholder="Search"
-                    onChange={e => setSearch(e.target.value)}
+                    onChange={e => setSearchInput(e.target.value)}
                     style={{
                         position: 'absolute',
                         top: '5%',
@@ -41,6 +75,7 @@ export default function Map() {
                         url="https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png"
                         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
                     />
+                    <Markers key={'Markers'} conditions={drawnConditions} />
                 </MapContainer>
             </div>
         </>
