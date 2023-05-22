@@ -6,6 +6,7 @@ import mongoose from 'mongoose';
 import cookieParser from 'cookie-parser';
 
 import config from './config';
+import waypointsService, { airacCycleUpdater } from './services/waypoints.service';
 
 (async () => {
     console.info('starting up');
@@ -46,4 +47,8 @@ import config from './config';
     app.listen(port, () => {
         console.info('listening on port', port);
     });
+
+    // create waypoints collection then schedule airacCycleUpdater
+    waypointsService.writeToDatabase();
+    setInterval(airacCycleUpdater, 24 * 60 * 60 * 1000);
 })();
