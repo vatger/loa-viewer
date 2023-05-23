@@ -4,6 +4,7 @@ import { Marker, useMap, useMapEvent } from 'react-leaflet';
 import { useEffect, useState } from 'react';
 import { WaypointRecord } from 'interfaces/waypointRecord.interface';
 import location from '../img/location.png';
+import React from 'react';
 
 function Markers({ conditions }: { conditions: WaypointRecord[] }) {
     const map = useMap();
@@ -29,16 +30,16 @@ function Markers({ conditions }: { conditions: WaypointRecord[] }) {
     }
 
     // Render markers based on the conditions
-    const markers = conditions.map(condition => {
+    const markers = conditions.map((condition, index) => {
         const { waypoint } = condition;
         const { latitude, longitude } = waypoint;
 
         // Render a marker using the latitude and longitude
         return (
-            <>
-                <Marker position={[latitude, longitude]} key={waypoint.name} icon={MarkerIcon} />
-                <Marker position={[latitude, longitude]} key={waypoint.name + 'Table'} icon={MarkerConditionTable(condition, zoom)} />
-            </>
+            <React.Fragment key={index}>
+                <Marker position={[latitude, longitude]} key={`${waypoint.name}-marker`} icon={MarkerIcon} />
+                <Marker position={[latitude, longitude]} key={`${waypoint.name}-table`} icon={MarkerConditionTable(condition, zoom)} />
+            </React.Fragment>
         );
     });
 
