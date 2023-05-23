@@ -8,15 +8,24 @@ export async function extractWaypoints(): Promise<Waypoint[]> {
         const excelData = await getDataXlsxs();
         const waypoints: Waypoint[] = [];
 
-        const processWorksheet = (worksheet: Worksheet, waypoints: { name: any; latitude: number; longitude: number }[]) => {
+        const processWorksheet = (worksheet, waypoints) => {
             worksheet.eachRow((row, rowNumber) => {
                 if (rowNumber === 1) {
                     return;
                 }
 
                 const name = row.getCell(1).value?.toString();
-                const latitude = Number(row.getCell(5).value);
-                const longitude = Number(row.getCell(6).value);
+                let latitude: number | undefined;
+                let longitude: number | undefined;
+
+                // Check if it's the waypoints or navaids worksheet
+                if (worksheet.name === 'Waypoints') {
+                    latitude = Number(row.getCell(5).value);
+                    longitude = Number(row.getCell(6).value);
+                } else if (worksheet.name === 'Navaids') {
+                    latitude = Number(row.getCell(4).value);
+                    longitude = Number(row.getCell(5).value);
+                }
 
                 if (name === undefined || latitude === undefined || longitude === undefined) {
                     return;
