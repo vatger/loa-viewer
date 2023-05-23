@@ -1,26 +1,19 @@
-import { Workbook } from 'exceljs';
-import getWaypointsExcel from './aipData.service';
+import { Workbook, Worksheet } from 'exceljs';
+import getDataXlsxs from './aipData.service';
 import Waypoint from '@shared/interfaces/waypoint.interface';
 import waypointModel, { WaypointDocument } from '../models/waypoint.model';
 
 export async function extractWaypoints(): Promise<Waypoint[]> {
     try {
-        const excelData = await getWaypointsExcel();
-        const ExcelWorkbook = new Workbook();
-        await ExcelWorkbook.xlsx.load(excelData);
-
-        // Extract waypoints from the second page (worksheet)
-        const worksheet = ExcelWorkbook.worksheets[1];
+        const excelData = await getDataXlsxs();
         const waypoints: Waypoint[] = [];
 
-        worksheet.eachRow((row, rowNumber) => {
-            // Skip the first row (header row)
-            if (rowNumber === 1) {
-                return;
-            }
+        const processWorksheet = (worksheet: Worksheet, waypoints: { name: any; latitude: number; longitude: number }[]) => {
+            worksheet.eachRow((row, rowNumber) => {
+                if (rowNumber === 1) {
+                    return;
+                }
 
-            const thirdColumnValue = row.getCell(3).value;
-            if (thirdColumnValue === 'ICAO') {
                 const name = row.getCell(1).value?.toString();
                 const latitude = Number(row.getCell(5).value);
                 const longitude = Number(row.getCell(6).value);
@@ -29,15 +22,34 @@ export async function extractWaypoints(): Promise<Waypoint[]> {
                     return;
                 }
 
-                const waypoint: Waypoint = {
+                const waypoint = {
                     name: name,
                     latitude: latitude,
                     longitude: longitude,
                 };
 
                 waypoints.push(waypoint);
-            }
-        });
+            });
+        };
+
+        // waypoints xlsx
+        if (excelData?.waypointsExcel) {
+            const ExcelWorkbook = new Workbook();
+            await ExcelWorkbook.xlsx.load(excelData.waypointsExcel);
+
+            const worksheet = ExcelWorkbook.worksheets[1];
+            processWorksheet(worksheet, waypoints);
+        }
+
+        // navaids xlsx
+        if (excelData?.navaidsExcel) {
+            const ExcelWorkbook = new Workbook();
+            await ExcelWorkbook.xlsx.load(excelData.navaidsExcel);
+
+            const worksheet = ExcelWorkbook.worksheets[1];
+            processWorksheet(worksheet, waypoints);
+        }
+
         return waypoints;
     } catch (error) {
         console.error('Error extracting waypoints:', error);
