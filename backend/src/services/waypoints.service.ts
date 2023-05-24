@@ -30,8 +30,8 @@ export async function extractWaypoints(): Promise<Waypoint[]> {
                     longitude = Number(row.getCell(6).value);
                 } else if (worksheet.name === 'Navaids') {
                     const navaidType = row.getCell(2).value?.toString();
-                    // skip everything but VORs
-                    if (navaidType !== 'VOR') {
+                    // skip everything but VORs and NDBs
+                    if (navaidType !== 'VOR' && navaidType !== 'NDB') {
                         return;
                     }
 
