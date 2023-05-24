@@ -20,9 +20,21 @@ export async function extractWaypoints(): Promise<Waypoint[]> {
 
                 // Check if it's the waypoints or navaids worksheet
                 if (worksheet.name === 'Waypoints') {
+                    const waypointType = row.getCell(3).value?.toString();
+                    // skip visual reporting points and runway definitions
+                    if (waypointType === 'OTHER:ADHP' && name.length < 4) {
+                        return;
+                    }
+
                     latitude = Number(row.getCell(5).value);
                     longitude = Number(row.getCell(6).value);
                 } else if (worksheet.name === 'Navaids') {
+                    const navaidType = row.getCell(2).value?.toString();
+                    // skip everything but VORs
+                    if (navaidType !== 'VOR') {
+                        return;
+                    }
+
                     latitude = Number(row.getCell(4).value);
                     longitude = Number(row.getCell(5).value);
                 }
