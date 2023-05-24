@@ -79,35 +79,62 @@ export async function extractWaypoints(): Promise<Waypoint[]> {
 }
 
 export async function writeToDatabase() {
-    waypointModel.countDocuments({}, (error, count) => {
-        if (error) {
-            console.error('Error retrieving document count:', error);
-        } else {
-            console.log('Number of items in the collection:', count);
-        }
-    });
-
     const waypoints = await extractWaypoints();
 
-    if (waypoints.length === 0) {
-        return;
-    } else {
-        waypointModel.deleteMany({}, error => {
-            if (error) {
-                console.error('Error clearing collection:', error);
-            } else {
-                console.log('Collection cleared successfully.');
-            }
-        });
-    }
+    if (waypoints.length !== 0) {
+        // Clear collection
+        const clearCollection = () => {
+            return new Promise<void>((resolve, reject) => {
+                waypointModel.deleteMany({}, error => {
+                    if (error) {
+                        console.error('Error clearing collection:', error);
+                        reject(error);
+                    } else {
+                        console.log('Collection cleared successfully.');
+                        resolve();
+                    }
+                });
+            });
+        };
 
-    waypointModel.insertMany(waypoints, (err, result) => {
-        if (err) {
-            console.error('Error importing waypoints:', err);
-        } else {
-            console.log('Waypoints imported successfully.');
-        }
-    });
+        // Retrieve count of items in collection
+        const retrieveItemCount = () => {
+            return new Promise<void>((resolve, reject) => {
+                waypointModel.countDocuments({}, (error, count) => {
+                    if (error) {
+                        console.error('Error retrieving document count:', error);
+                        reject(error);
+                    } else {
+                        console.log('Number of items in the collection:', count);
+                        resolve();
+                    }
+                });
+            });
+        };
+
+        // Insert fetched waypoints
+        const insertWaypoints = () => {
+            return new Promise<void>((resolve, reject) => {
+                waypointModel.insertMany(waypoints, err => {
+                    if (err) {
+                        console.error('Error importing waypoints:', err);
+                        reject(err);
+                    } else {
+                        console.log('Waypoints imported successfully.');
+                        resolve();
+                    }
+                });
+            });
+        };
+
+        // Run operations sequentially
+        clearCollection()
+            .then(insertWaypoints)
+            .then(retrieveItemCount)
+            .catch(error => {
+                console.error('An error occurred:', error);
+            });
+    }
 }
 
 export async function getAllWaypoints() {
