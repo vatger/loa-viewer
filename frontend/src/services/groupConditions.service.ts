@@ -7,11 +7,13 @@ async function groupConditionsByCop(conditions: FrontendCondition[]): Promise<Wa
     const groupedConditions: Record<string, FrontendCondition[]> = {};
 
     for (const condition of conditions) {
-        const { cop } = condition;
-        if (!groupedConditions[cop]) {
-            groupedConditions[cop] = [];
-        }
-        groupedConditions[cop].push(condition as FrontendCondition);
+        const cop = condition.cop;
+        const aerodrome = condition.aerodrome;
+
+        // check if cop is valid
+        const targetGroup = cop.length < 2 ? aerodrome : cop;
+        groupedConditions[targetGroup] = groupedConditions[targetGroup] || [];
+        groupedConditions[targetGroup].push(condition as FrontendCondition);
     }
 
     const waypointRecords: WaypointRecord[] = [];
