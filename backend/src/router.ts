@@ -7,6 +7,7 @@ import metaController from './controllers/meta.controller';
 import datafeedController from './controllers/datafeed.controller';
 import stationMappingController from './controllers/stationMapping.controller';
 import waypointController from './controllers/waypoint.controller';
+import sectorController from './controllers/sector.controller';
 
 const router = Router();
 
@@ -17,6 +18,7 @@ router.delete('/conditions/:id', authMiddleware, conditionController.deleteCondi
 router.patch('/conditions/:id', authMiddleware, conditionController.updateCondition);
 
 router.get('/waypoints', waypointController.getAllWaypoints);
+router.get('/sectors', sectorController.getAllSectors);
 
 router.get('/datafeed', datafeedController.getDataFeed);
 router.get('/stationMappings', stationMappingController.getStationMappings);

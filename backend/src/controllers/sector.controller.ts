@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import sectorService from 'services/sector.service';
+import sectorService from '../services/sector.service';
 import { SectorDocument } from 'models/sector.model';
 
 export async function getAllSectors(req: Request, res: Response, next: NextFunction) {
