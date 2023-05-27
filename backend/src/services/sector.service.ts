@@ -58,8 +58,8 @@ async function updateSectors() {
     const countries: string[] = ['germany', 'nl', 'belux', 'austria', 'czechia'];
     const sectors = await retrieveAirspacesFromCountries(countries);
 
-    // Insert fetched waypoints
-    const insertWaypoints = () => {
+    // Insert fetched sectors
+    const insertSectors = () => {
         return new Promise<void>((resolve, reject) => {
             sectorModel.insertMany(sectors, err => {
                 if (err) {
@@ -75,7 +75,7 @@ async function updateSectors() {
 
     // Run operations sequentially
     clearCollection()
-        .then(insertWaypoints)
+        .then(insertSectors)
         .catch(error => {
             console.error('An error occurred:', error);
         });
