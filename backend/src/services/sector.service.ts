@@ -1,5 +1,6 @@
 import axios from 'axios';
 import Airspace from '@shared/interfaces/sector.interface';
+import sectorModel, { SectorDocument } from '../models/sector.model';
 
 async function getSectorData(filename: string): Promise<any> {
     try {
@@ -36,7 +37,52 @@ async function retrieveAirspacesFromCountries(countries: string[]): Promise<Airs
     return [];
 }
 
+async function updateSectors() {
+    // clear collection
+    const clearCollection = () => {
+        return new Promise<void>((resolve, reject) => {
+            sectorModel.deleteMany({}, error => {
+                if (error) {
+                    console.error('Error clearing collection:', error);
+                    reject(error);
+                } else {
+                    console.log('Sector collection cleared successfully.');
+                    resolve();
+                }
+            });
+        });
+    };
+
+    // fetch sectors
+    // filenames as given in https://github.com/lennycolton/vatglasses-data/tree/main/data
+    const countries: string[] = ['germany', 'nl', 'belux', 'austria', 'czechia'];
+    const sectors = await retrieveAirspacesFromCountries(countries);
+
+    // Insert fetched waypoints
+    const insertWaypoints = () => {
+        return new Promise<void>((resolve, reject) => {
+            sectorModel.insertMany(sectors, err => {
+                if (err) {
+                    console.error('Error importing waypoints:', err);
+                    reject(err);
+                } else {
+                    console.log('Sectors imported successfully.');
+                    resolve();
+                }
+            });
+        });
+    };
+
+    // Run operations sequentially
+    clearCollection()
+        .then(insertWaypoints)
+        .catch(error => {
+            console.error('An error occurred:', error);
+        });
+}
+
 export default {
     getSectorData,
     retrieveAirspacesFromCountries,
+    updateSectors,
 };
