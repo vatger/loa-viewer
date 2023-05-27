@@ -81,8 +81,20 @@ async function updateSectors() {
         });
 }
 
+async function getAllSectors() {
+    try {
+        const waypoint: SectorDocument[] = await sectorModel.find().exec();
+
+        return waypoint;
+    } catch (error) {
+        console.error(`Error while at ${getAllSectors.name}`);
+        console.error(error);
+    }
+}
+
 export default {
     getSectorData,
     retrieveAirspacesFromCountries,
+    getAllSectors,
     updateSectors,
 };
