@@ -70,7 +70,7 @@ export default function LoaViewerMap() {
                 setDrawnConditions(groupedConditions);
             });
         }
-    }, [debounceSearch, loading]);
+    }, [debounceSearch, loading, searchInput, conditions]);
 
     return (
         <>
