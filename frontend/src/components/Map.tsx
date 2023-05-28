@@ -9,12 +9,16 @@ import groupConditionsByCop from 'services/groupConditions.service';
 import 'leaflet/dist/leaflet.css';
 import Markers from './Markers';
 import { WaypointRecord } from 'interfaces/waypointRecord.interface';
+import Airspace from '@shared/interfaces/sector.interface';
+import sectorService from 'services/sector.service';
 
 export default function LoaViewerMap() {
     const [conditions, setConditions] = useState<FrontendCondition[]>([]);
     const [drawnConditions, setDrawnConditions] = useState<WaypointRecord[]>([]);
     const [searchInput, setSearchInput] = useState<string>('GIN');
     const [loading, setLoading] = useState(true);
+
+    const [airspaces, setAirspaces] = useState<Airspace[]>([]);
 
     useEffect(() => {
         conditionService.getConditions().then((data: FrontendCondition[]) => {
@@ -35,8 +39,21 @@ export default function LoaViewerMap() {
                 };
             });
             setConditions(convertedData);
-            setLoading(false);
         });
+        sectorService.getWaypoints().then((data: Airspace[]) => {
+            const convertedData: Airspace[] = data.map((element: Airspace) => {
+                return {
+                    id: element.id,
+                    group: element.group,
+                    owner: element.owner,
+                    sectors: element.sectors,
+                };
+            });
+            setAirspaces(convertedData);
+            console.log(convertedData);
+        });
+
+        setLoading(false);
     }, []);
 
     useEffect(() => {
