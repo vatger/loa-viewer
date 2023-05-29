@@ -9,6 +9,7 @@ import groupConditionsByCop from 'services/groupConditions.service';
 import 'leaflet/dist/leaflet.css';
 import Markers from './Markers';
 import { WaypointRecord } from 'interfaces/waypointRecord.interface';
+import { DisplayAirspaces } from './Sectors';
 import Airspace from '@shared/interfaces/sector.interface';
 import sectorService from 'services/sector.service';
 
@@ -92,6 +93,7 @@ export default function LoaViewerMap() {
                         url="https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png"
                         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
                     />
+                    <DisplayAirspaces airspaces={airspaces} combineSectors={true} />
                     <Markers key={'Markers'} conditions={drawnConditions} />
                 </MapContainer>
             </div>
