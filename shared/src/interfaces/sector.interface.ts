@@ -8,7 +8,7 @@ export interface Airspace {
 export interface Sector {
     max: number;
     min: number;
-    points: number[][];
+    points: string[][];
 }
 
 export default Airspace;

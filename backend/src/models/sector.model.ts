@@ -6,7 +6,7 @@ export type SectorDocument = HydratedDocument<Airspace>;
 export const sectorSchema = new mongoose.Schema({
     max: { type: Number, required: false },
     min: { type: Number, required: false },
-    points: { type: [[Number]], required: true },
+    points: { type: [[String]], required: true },
 });
 
 export const airspaceSchema = new mongoose.Schema({
