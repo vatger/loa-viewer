@@ -1,6 +1,7 @@
 import useDebounce from 'hooks/useDebounce';
 import { FrontendCondition } from 'interfaces/condition.interface';
 import { InputText } from 'primereact/inputtext';
+import { Dropdown } from 'primereact/dropdown';
 import { useEffect, useState } from 'react';
 import { MapContainer, TileLayer } from 'react-leaflet';
 import conditionService from 'services/conditionService';
@@ -21,6 +22,8 @@ export default function LoaViewerMap() {
 
     const [airspaces, setAirspaces] = useState<Airspace[]>([]);
     const [drawnAirspaces, setDrawnAirspaces] = useState<Airspace[]>([]);
+
+    const selectableGroups = ['EDMM', 'EDWW', 'EDGG', 'APP'];
     const [allStations, setAllStations] = useState<String[]>([]);
     const [selectedSector, setSelectedSector] = useState<String>('GIN');
     const [selectedFir, setSelectedFir] = useState<String>('EDGG');
@@ -94,18 +97,47 @@ export default function LoaViewerMap() {
     return (
         <>
             <div style={{ position: 'relative' }}>
-                <InputText
-                    type="search"
-                    placeholder="Search"
-                    onChange={e => setSearchInput(e.target.value)}
-                    style={{
-                        position: 'absolute',
-                        top: '5%',
-                        left: '50%',
-                        transform: 'translate(-50%, -50%)',
-                        zIndex: 1,
-                    }}
-                />
+                <div style={{ display: 'flex' }}>
+                    <InputText
+                        type="search"
+                        placeholder="Search"
+                        onChange={e => setSearchInput(e.target.value)}
+                        style={{
+                            position: 'absolute',
+                            top: '5%',
+                            left: '50%',
+                            transform: 'translate(-100%, -100%)',
+                            zIndex: 1,
+                        }}
+                    />
+                    {/* selected Sector */}
+                    <Dropdown
+                        options={allStations}
+                        value={selectedSector}
+                        onChange={e => setSelectedSector(e.value)}
+                        style={{
+                            position: 'absolute',
+                            top: '5%',
+                            left: '50%',
+                            transform: 'translate(-0%, -100%)',
+                            zIndex: 1,
+                        }}
+                    />
+                    {/* TODO: selected FIR */}
+                    <Dropdown
+                        options={selectableGroups}
+                        value={selectedFir}
+                        onChange={e => setSelectedFir(e.value)}
+                        style={{
+                            position: 'absolute',
+                            top: '5%',
+                            left: '50%',
+                            transform: 'translate(100%, -100%)',
+                            zIndex: 1,
+                        }}
+                    />
+                </div>
+
                 <MapContainer center={[50.026292, 8.765245]} zoom={8} style={{ width: '100vw', height: '100vh', zIndex: 0 }} maxZoom={10} minZoom={6}>
                     <TileLayer
                         url="https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png"
