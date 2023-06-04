@@ -20,7 +20,9 @@ export default function LoaViewerMap() {
     const [loading, setLoading] = useState(true);
 
     const [airspaces, setAirspaces] = useState<Airspace[]>([]);
+    const [allStations, setAllStations] = useState<String[]>([]);
     const [selectedSector, setSelectedSector] = useState<String>('GIN');
+    const [selectedFir, setSelectedFir] = useState<String>('EDGG');
 
     useEffect(() => {
         conditionService.getConditions().then((data: FrontendCondition[]) => {
@@ -67,6 +69,21 @@ export default function LoaViewerMap() {
             });
         }
     }, [debounceSearch, loading, searchInput, conditions, selectedSector]);
+
+    useEffect(() => {
+        const stationsSet: Set<string> = new Set();
+        for (const airspace of airspaces) {
+            if (airspace.group === selectedFir) {
+                const owner = airspace.owner[0];
+                if (!owner.includes('_')) {
+                    stationsSet.add(owner);
+                }
+            }
+        }
+
+        const stations: string[] = Array.from(stationsSet);
+        setAllStations(stations);
+    }, [selectedFir, loading, airspaces]);
 
     return (
         <>
