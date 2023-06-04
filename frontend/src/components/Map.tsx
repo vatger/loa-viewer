@@ -57,12 +57,6 @@ export default function LoaViewerMap() {
         setLoading(false);
     }, []);
 
-    useEffect(() => {
-        if (searchInput === '' || searchInput.length < 2) {
-            setSearchInput('GIN');
-        }
-    }, [searchInput]);
-
     const debounceSearch = useDebounce(searchInput, 500);
     useEffect(() => {
         if (!loading) {
