@@ -20,6 +20,7 @@ export default function LoaViewerMap() {
     const [loading, setLoading] = useState(true);
 
     const [airspaces, setAirspaces] = useState<Airspace[]>([]);
+    const [selectedSector, setSelectedSector] = useState<String>('GIN');
 
     useEffect(() => {
         conditionService.getConditions().then((data: FrontendCondition[]) => {
@@ -60,12 +61,12 @@ export default function LoaViewerMap() {
     const debounceSearch = useDebounce(searchInput, 500);
     useEffect(() => {
         if (!loading) {
-            const searchConditions = filterConditionsService(conditions, searchInput);
+            const searchConditions = filterConditionsService(conditions, searchInput, selectedSector);
             groupConditionsByCop(searchConditions).then(groupedConditions => {
                 setDrawnConditions(groupedConditions);
             });
         }
-    }, [debounceSearch, loading, searchInput, conditions]);
+    }, [debounceSearch, loading, searchInput, conditions, selectedSector]);
 
     return (
         <>
