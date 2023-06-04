@@ -20,6 +20,7 @@ export default function LoaViewerMap() {
     const [loading, setLoading] = useState(true);
 
     const [airspaces, setAirspaces] = useState<Airspace[]>([]);
+    const [drawnAirspaces, setDrawnAirspaces] = useState<Airspace[]>([]);
     const [allStations, setAllStations] = useState<String[]>([]);
     const [selectedSector, setSelectedSector] = useState<String>('GIN');
     const [selectedFir, setSelectedFir] = useState<String>('EDGG');
@@ -85,6 +86,11 @@ export default function LoaViewerMap() {
         setAllStations(stations);
     }, [selectedFir, loading, airspaces]);
 
+    useEffect(() => {
+        const filtered = airspaces.filter(airspace => airspace.owner[0] === selectedSector);
+        setDrawnAirspaces(filtered);
+    }, [selectedFir, loading, airspaces, selectedSector]);
+
     return (
         <>
             <div style={{ position: 'relative' }}>
@@ -105,7 +111,7 @@ export default function LoaViewerMap() {
                         url="https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png"
                         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
                     />
-                    <DisplayAirspaces airspaces={airspaces} combineSectors={true} />
+                    <DisplayAirspaces airspaces={drawnAirspaces} combineSectors={true} />
                     <Markers key={'Markers'} conditions={drawnConditions} />
                 </MapContainer>
             </div>

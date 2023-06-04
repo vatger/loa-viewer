@@ -9,22 +9,21 @@ interface SectorsProps {
 }
 
 export function DisplayAirspaces({ airspaces, combineSectors }: SectorsProps) {
-    airspaces = airspaces.filter(airspace => airspace.id === 'Münster Low');
-        return (
-            <div>
-                {airspaces.map((airspace, airspaceIndex) => (
-                    <React.Fragment key={airspaceIndex}>
-                        <div key={airspace.id}>
-                            {airspace.sectors.map((sector, sectorIndex) => (
-                                <React.Fragment key={`${airspaceIndex}-${sectorIndex}`}>
-                                    <Polygon key={`${airspaceIndex}-${sectorIndex}`} positions={convertCoordinatestoLatLngExpression(sector.points)} color="red" weight={2} />
-                                </React.Fragment>
-                            ))}
-                        </div>
-                    </React.Fragment>
-                ))}
-            </div>
-        );
+    return (
+        <div>
+            {airspaces.map((airspace, airspaceIndex) => (
+                <React.Fragment key={airspaceIndex}>
+                    <div key={airspace.id}>
+                        {airspace.sectors.map((sector, sectorIndex) => (
+                            <React.Fragment key={`${airspaceIndex}-${sectorIndex}`}>
+                                <Polygon key={`${airspaceIndex}-${sectorIndex}`} positions={convertCoordinatestoLatLngExpression(sector.points)} color="red" weight={2} />
+                            </React.Fragment>
+                        ))}
+                    </div>
+                </React.Fragment>
+            ))}
+        </div>
+    );
 }
 function convertCoordinatestoLatLngExpression(coordinates: string[][]): LatLngExpression[] {
     return coordinates.map(([lat, lng]) => {
