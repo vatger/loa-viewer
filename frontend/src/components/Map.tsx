@@ -17,7 +17,7 @@ import sectorService from 'services/sector.service';
 export default function LoaViewerMap() {
     const [conditions, setConditions] = useState<FrontendCondition[]>([]);
     const [drawnConditions, setDrawnConditions] = useState<WaypointRecord[]>([]);
-    const [searchInput, setSearchInput] = useState<string>('GIN');
+    const [searchInput, setSearchInput] = useState<string>('');
     const [loading, setLoading] = useState(true);
 
     const [airspaces, setAirspaces] = useState<Airspace[]>([]);
@@ -58,7 +58,6 @@ export default function LoaViewerMap() {
                 };
             });
             setAirspaces(convertedData);
-            console.log(convertedData);
         });
 
         setLoading(false);
