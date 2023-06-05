@@ -64,12 +64,21 @@ function ConditionTableIcon({ zoom, conditions }: PropsTable) {
     };
 
     const agreements = conditions.conditions;
+    let hasSpecialConditions = false;
+    let columnSpan = 3;
+
+    agreements.forEach(condition => {
+        if (condition.special_conditions) {
+            hasSpecialConditions = true;
+            columnSpan = 4;
+        }
+    });
 
     return (
         <table className="map-table-style" style={tableStyle}>
             <thead>
                 <tr>
-                    <th className="center" colSpan={5} />
+                    <th className="center" colSpan={columnSpan} />
                     <th className="center line" colSpan={2}>
                         Sector
                     </th>
@@ -81,8 +90,7 @@ function ConditionTableIcon({ zoom, conditions }: PropsTable) {
                     <th className="line">AD</th>
                     <th className="line">COP</th>
                     <th className="line">Level</th>
-                    <th className="line">XC</th>
-                    <th className="line">Special Conditions</th>
+                    {hasSpecialConditions ? <th className="line">Special Conditions</th> : null}
                     <th className="line">From</th>
                     <th className="line">To</th>
                     <th className="line">From</th>
@@ -98,10 +106,10 @@ function ConditionTableIcon({ zoom, conditions }: PropsTable) {
                         <td className="line">{condition.cop}</td>
                         <td className="line">
                             {condition.feet ? 'A' : 'FL'}
-                            {condition.level}{' '}
+                            {condition.level}
+                            {condition.xc}
                         </td>
-                        <td className="line">{condition.xc}</td>
-                        <td className="line">{condition.special_conditions}</td>
+                        {hasSpecialConditions ? <td className="line">{condition.special_conditions}</td> : null}
                         <td className="line">{condition.from_sector}</td>
                         <td className="line">{condition.to_sector}</td>
                         <td className="line">{condition.from_fir}</td>
