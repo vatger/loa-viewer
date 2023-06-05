@@ -122,7 +122,7 @@ export default function LoaViewerMap() {
                             zIndex: 1,
                         }}
                     />
-                    {/* TODO: selected FIR */}
+                    {/* selected FIR */}
                     <Dropdown
                         options={selectableGroups}
                         value={selectedFir}

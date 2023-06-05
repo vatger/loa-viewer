@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { LatLngExpression } from 'leaflet';
 import Waypoint from '@shared/interfaces/waypoint.interface';
 
 let waypointData: Waypoint[] | undefined;

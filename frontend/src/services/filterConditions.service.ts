@@ -7,9 +7,7 @@ export default function filterConditions(conditions: FrontendCondition[], search
     const filteredConditions = conditions.filter(condition => {
         // Check if any of the properties of the current condition match the search string and selectedOwner
         return Object.values(condition).some(value => {
-            // Convert the value to a string and check if it contains the search string
             if (typeof value === 'string' && value.toLowerCase().includes(search)) {
-                // Check if from_sector or to_sector are equal to selectedOwner
                 return condition.from_sector === selectedOwner || condition.to_sector === selectedOwner;
             }
             return false;

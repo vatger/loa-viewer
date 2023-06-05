@@ -1,5 +1,5 @@
 import { Polygon } from 'react-leaflet';
-import Airspace, { Sector } from '@shared/interfaces/sector.interface';
+import Airspace from '@shared/interfaces/sector.interface';
 import { LatLngExpression } from 'leaflet';
 import React from 'react';
 
