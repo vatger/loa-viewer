@@ -95,46 +95,11 @@ export default function LoaViewerMap() {
 
     return (
         <>
-            <div style={{ position: 'relative' }}>
-                <div style={{ display: 'flex' }}>
-                    <InputText
-                        type="search"
-                        placeholder="Search"
-                        onChange={e => setSearchInput(e.target.value)}
-                        style={{
-                            position: 'absolute',
-                            top: '5%',
-                            left: '50%',
-                            transform: 'translate(-100%, -100%)',
-                            zIndex: 1,
-                        }}
-                    />
-                    {/* selected Sector */}
-                    <Dropdown
-                        options={allStations}
-                        value={selectedSector}
-                        onChange={e => setSelectedSector(e.value)}
-                        style={{
-                            position: 'absolute',
-                            top: '5%',
-                            left: '50%',
-                            transform: 'translate(-0%, -100%)',
-                            zIndex: 1,
-                        }}
-                    />
-                    {/* selected FIR */}
-                    <Dropdown
-                        options={selectableGroups}
-                        value={selectedFir}
-                        onChange={e => setSelectedFir(e.value)}
-                        style={{
-                            position: 'absolute',
-                            top: '5%',
-                            left: '50%',
-                            transform: 'translate(100%, -100%)',
-                            zIndex: 1,
-                        }}
-                    />
+            <div>
+                <div style={{ position: 'absolute', zIndex: 1, top: '10%', left: '50%', transform: 'translate(-50%, -50%)', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                    <InputText type="search" placeholder="Search" onChange={e => setSearchInput(e.target.value)} />
+                    <Dropdown options={allStations} value={selectedSector} onChange={e => setSelectedSector(e.value)} />
+                    <Dropdown options={selectableGroups} value={selectedFir} onChange={e => setSelectedFir(e.value)} />
                 </div>
 
                 <MapContainer center={[50.026292, 8.765245]} zoom={8} style={{ width: '100vw', height: '100vh', zIndex: 0 }} maxZoom={10} minZoom={6}>
