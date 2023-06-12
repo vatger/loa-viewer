@@ -6,6 +6,9 @@ import mongoose from 'mongoose';
 import cookieParser from 'cookie-parser';
 
 import config from './config';
+import waypointsService from './services/waypoints.service';
+import sectorService from './services/sector.service';
+import { airacCycleUpdater } from './services/airacUpdater.service';
 
 (async () => {
     console.info('starting up');
@@ -46,4 +49,9 @@ import config from './config';
     app.listen(port, () => {
         console.info('listening on port', port);
     });
+
+    // create waypoints & sectors collection then schedule airacCycleUpdater
+    waypointsService.writeToDatabase();
+    sectorService.updateSectors();
+    setInterval(airacCycleUpdater, 24 * 60 * 60 * 1000);
 })();

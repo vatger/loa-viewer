@@ -26,6 +26,33 @@
   background-color: #0e1315;
   }
 
-  .footer-end {
-    align-content: end;
-  }
+.footer-end {
+  align-content: end;
+}
+
+.map-table-style {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.map-table-style td,
+.map-table-style th {
+  padding: 5px;
+  white-space: nowrap;
+  text-align: left;
+}
+
+.line {
+  padding: 3px; 
+  white-space: nowrap;
+  border: 1px solid white;
+  text-align: center;
+}
+
+.center {
+  text-align: center;
+}
+
+.custom-icon {
+  color: white;
+}
