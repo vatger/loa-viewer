@@ -23,7 +23,7 @@ export default function LoaViewerMap() {
     const [airspaces, setAirspaces] = useState<Airspace[]>([]);
     const [drawnAirspaces, setDrawnAirspaces] = useState<Airspace[]>([]);
 
-    const selectableGroups = ['EDMM', 'EDWW', 'EDGG', 'APP'];
+    const selectableGroups = ['EDMM', 'EDWW', 'EDGG', 'EDYY', 'EDUU', 'APP'];
     const [allStations, setAllStations] = useState<String[]>([]);
     const [selectedSector, setSelectedSector] = useState<String>('GIN');
     const [selectedFir, setSelectedFir] = useState<String>('EDGG');
