@@ -2,14 +2,9 @@ import { NextFunction, Request, Response } from 'express';
 import conditionService from '../services/condition.service';
 import { ConditionDocument } from '../models/condition.model';
 
-export async function addCondition(
-    req: Request,
-    res: Response,
-    next: NextFunction
-) {
+export async function addCondition(req: Request, res: Response, next: NextFunction) {
     try {
-        const condition: ConditionDocument =
-            await conditionService.addCondition(req.body);
+        const condition: ConditionDocument = await conditionService.addCondition(req.body);
 
         res.json(condition);
     } catch (error) {
@@ -17,14 +12,9 @@ export async function addCondition(
     }
 }
 
-export async function getAllConditions(
-    req: Request,
-    res: Response,
-    next: NextFunction
-) {
+export async function getAllConditions(req: Request, res: Response, next: NextFunction) {
     try {
-        const conditions: ConditionDocument[] =
-            await conditionService.getAllConditions();
+        const conditions: ConditionDocument[] = await conditionService.getAllConditions();
 
         res.json(conditions);
     } catch (error) {
@@ -32,14 +22,9 @@ export async function getAllConditions(
     }
 }
 
-export async function getCondition(
-    req: Request,
-    res: Response,
-    next: NextFunction
-) {
+export async function getCondition(req: Request, res: Response, next: NextFunction) {
     try {
-        const condition: ConditionDocument =
-            await conditionService.getCondition(req.params.icao);
+        const condition: ConditionDocument = await conditionService.getCondition(req.params.icao);
 
         res.json(condition);
     } catch (error) {
@@ -47,11 +32,7 @@ export async function getCondition(
     }
 }
 
-export async function deleteCondition(
-    req: Request,
-    res: Response,
-    next: NextFunction
-) {
+export async function deleteCondition(req: Request, res: Response, next: NextFunction) {
     try {
         await conditionService.deleteCondition(req.params.id);
 
@@ -63,14 +44,9 @@ export async function deleteCondition(
     }
 }
 
-export async function updateCondition(
-    req: Request,
-    res: Response,
-    next: NextFunction
-) {
+export async function updateCondition(req: Request, res: Response, next: NextFunction) {
     try {
-        const condition: ConditionDocument =
-            await conditionService.updateCondition(req.params.id, req.body);
+        const condition: ConditionDocument = await conditionService.updateCondition(req.params.id, req.body);
 
         res.json(condition);
     } catch (error) {
