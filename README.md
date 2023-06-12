@@ -8,6 +8,7 @@ It is intended to improve the searchability of letter of agreements by allowing 
 |        Name         | Responsible for |    Contact    |
 | :-----------------: | :-------------: | :-----------: |
 | Moritz F. - 1234027 |       \*        | nav@vatger.de |
+|  Leon K. - 1424877  |  Map component  | nav@vatger.de |
 
 ## Prerequisites
 
