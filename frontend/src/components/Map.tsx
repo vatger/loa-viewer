@@ -24,6 +24,7 @@ export default function LoaViewerMap() {
     const [drawnAirspaces, setDrawnAirspaces] = useState<Airspace[]>([]);
 
     const selectableGroups = ['EDMM', 'EDWW', 'EDGG', 'EDYY', 'EDUU', 'APP'];
+    const sortedSelectableGroups = selectableGroups.sort((a, b) => a.localeCompare(b));
     const [allStations, setAllStations] = useState<String[]>([]);
     const [selectedSector, setSelectedSector] = useState<String>('GIN');
     const [selectedFir, setSelectedFir] = useState<String>('EDGG');
@@ -85,7 +86,8 @@ export default function LoaViewerMap() {
         }
 
         const stations: string[] = Array.from(stationsSet);
-        setAllStations(stations);
+        const sortedStations = stations.sort((a, b) => a.localeCompare(b));
+        setAllStations(sortedStations);
     }, [selectedFir, loading, airspaces]);
 
     useEffect(() => {
@@ -99,7 +101,7 @@ export default function LoaViewerMap() {
                 <div style={{ position: 'absolute', zIndex: 1, top: '10%', left: '50%', transform: 'translate(-50%, -50%)', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                     <InputText type="search" placeholder="Search" onChange={e => setSearchInput(e.target.value)} />
                     <Dropdown options={allStations} value={selectedSector} onChange={e => setSelectedSector(e.value)} />
-                    <Dropdown options={selectableGroups} value={selectedFir} onChange={e => setSelectedFir(e.value)} />
+                    <Dropdown options={sortedSelectableGroups} value={selectedFir} onChange={e => setSelectedFir(e.value)} />
                 </div>
 
                 <MapContainer center={[50.026292, 8.765245]} zoom={8} style={{ width: '100vw', height: '100vh', zIndex: 0 }} maxZoom={10} minZoom={6}>
