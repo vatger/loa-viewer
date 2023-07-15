@@ -29,11 +29,15 @@ function Markers({ conditions }: { conditions: WaypointRecord[] }) {
 
     const handleMarkerClick = (name: string) => {
         setDrawnConditions(previousValue => {
-            const index = previousValue.findIndex(element => element.waypoint.name === name);
-
-            previousValue[index].drawn = !previousValue[index].drawn;
-
-            return previousValue;
+            return previousValue.map(condition => {
+                if (condition.waypoint.name === name) {
+                    return {
+                        ...condition,
+                        drawn: !condition.drawn,
+                    };
+                }
+                return condition;
+            });
         });
     };
 
