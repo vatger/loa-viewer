@@ -4,19 +4,45 @@ import { Marker, useMap, useMapEvent } from 'react-leaflet';
 import { useEffect, useState } from 'react';
 import { WaypointRecord } from 'interfaces/waypointRecord.interface';
 import location from '../img/location.png';
-import React from 'react';
+
+interface ExtendedWaypointRecord extends WaypointRecord {
+    drawn: boolean;
+}
 
 function Markers({ conditions }: { conditions: WaypointRecord[] }) {
+    const [drawnConditions, setDrawnConditions] = useState<ExtendedWaypointRecord[]>([]);
+
+    useEffect(() => {
+        setDrawnConditions(
+            conditions.map(condition => {
+                return {
+                    ...condition,
+                    drawn: false,
+                };
+            })
+        );
+    }, [conditions]);
+
     const map = useMap();
     const [zoom, setZoom] = useState<number>(map.getZoom());
     const [MarkerIcon, setMarkerIcon] = useState<Icon>();
+
+    const handleMarkerClick = (name: string) => {
+        setDrawnConditions(previousValue => {
+            const index = previousValue.findIndex(element => element.waypoint.name === name);
+
+            previousValue[index].drawn = !previousValue[index].drawn;
+
+            return previousValue;
+        });
+    };
 
     useMapEvent('zoomend', () => {
         setZoom(map.getZoom());
     });
 
     useEffect(() => {
-        const IconSize = 1 / zoom + 15;
+        const IconSize = 1 / (zoom * 2) + 15;
         setMarkerIcon(
             new Icon({
                 iconUrl: location,
@@ -29,21 +55,25 @@ function Markers({ conditions }: { conditions: WaypointRecord[] }) {
         return null; // Return null if there are no conditions to render
     }
 
-    // Render markers based on the conditions
-    const markers = conditions.map((condition, index) => {
-        const { waypoint } = condition;
-        const { latitude, longitude } = waypoint;
+    return (
+        <>
+            {drawnConditions &&
+                drawnConditions.map(condition => {
+                    const { waypoint } = condition;
+                    const { latitude, longitude } = waypoint;
+                    if (condition.drawn) {
+                        return (
+                            <>
+                                <Marker key={`${waypoint.name}-marker`} position={[latitude, longitude]} icon={MarkerIcon} eventHandlers={{ click: () => handleMarkerClick(waypoint.name) }} />
+                                <Marker key={`${waypoint.name}-table`} position={[latitude, longitude]} icon={MarkerConditionTable(condition, zoom)} eventHandlers={{ click: () => handleMarkerClick(waypoint.name) }} />
+                            </>
+                        );
+                    }
 
-        // Render a marker using the latitude and longitude
-        return (
-            <React.Fragment key={index}>
-                <Marker position={[latitude, longitude]} key={`${waypoint.name}-marker`} icon={MarkerIcon} />
-                <Marker position={[latitude, longitude]} key={`${waypoint.name}-table`} icon={MarkerConditionTable(condition, zoom)} />
-            </React.Fragment>
-        );
-    });
-
-    return <>{markers}</>;
+                    return <Marker key={waypoint.name} position={[latitude, longitude]} icon={MarkerIcon} eventHandlers={{ click: () => handleMarkerClick(waypoint.name) }} />;
+                })}
+        </>
+    );
 }
 
 function MarkerConditionTable(condition: WaypointRecord, zoom: number) {
