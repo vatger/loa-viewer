@@ -64,16 +64,30 @@ function Markers({ conditions }: { conditions: WaypointRecord[] }) {
                     if (condition.drawn) {
                         return (
                             <>
+                                <Marker key={`${waypoint.name}`} position={[latitude, longitude]} icon={MarkerNameWidget(waypoint.name)} eventHandlers={{ click: () => handleMarkerClick(waypoint.name) }} />
                                 <Marker key={`${waypoint.name}-marker`} position={[latitude, longitude]} icon={MarkerIcon} eventHandlers={{ click: () => handleMarkerClick(waypoint.name) }} />
                                 <Marker key={`${waypoint.name}-table`} position={[latitude, longitude]} icon={MarkerConditionTable(condition, zoom)} eventHandlers={{ click: () => handleMarkerClick(waypoint.name) }} />
                             </>
                         );
                     }
 
-                    return <Marker key={waypoint.name} position={[latitude, longitude]} icon={MarkerIcon} eventHandlers={{ click: () => handleMarkerClick(waypoint.name) }} />;
+                    return (
+                        <>
+                            <Marker key={`${waypoint.name}`} position={[latitude, longitude]} icon={MarkerNameWidget(waypoint.name)} eventHandlers={{ click: () => handleMarkerClick(waypoint.name) }} />;
+                            <Marker key={`${waypoint.name}-marker`} position={[latitude, longitude]} icon={MarkerIcon} eventHandlers={{ click: () => handleMarkerClick(waypoint.name) }} />{' '}
+                        </>
+                    );
                 })}
         </>
     );
+}
+
+function MarkerNameWidget(name: string) {
+    return new DivIcon({
+        className: 'Marker',
+        iconAnchor: [-10, 20],
+        html: renderToStaticMarkup(<span style={{ fontWeight: 'normal', fontSize: 13 }}>{name}</span>),
+    });
 }
 
 function MarkerConditionTable(condition: WaypointRecord, zoom: number) {
