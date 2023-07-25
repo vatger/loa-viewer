@@ -127,41 +127,41 @@ function ConditionTableIcon({ zoom, conditions }: PropsTable) {
             <thead>
                 <tr>
                     <th className="center" colSpan={columnSpan} />
-                    <th className="center line" colSpan={2}>
+                    <th className="center line background-black" colSpan={2}>
                         Sector
                     </th>
-                    <th className="center line " colSpan={2}>
+                    <th className="center line background-black " colSpan={2}>
                         FIR
                     </th>
                 </tr>
                 <tr>
-                    <th className="line">AD</th>
-                    <th className="line">COP</th>
-                    <th className="line">Level</th>
-                    {hasSpecialConditions ? <th className="line">Special Conditions</th> : null}
-                    <th className="line">From</th>
-                    <th className="line">To</th>
-                    <th className="line">From</th>
-                    <th className="line">To</th>
+                    <th className="line background-black background-black">AD</th>
+                    <th className="line background-black">COP</th>
+                    <th className="line background-black">Level</th>
+                    {hasSpecialConditions ? <th className="line background-black">Special Conditions</th> : null}
+                    <th className="line background-black">From</th>
+                    <th className="line background-black">To</th>
+                    <th className="line background-black">From</th>
+                    <th className="line background-black">To</th>
                 </tr>
             </thead>
             <tbody>
                 {agreements.map((condition, index) => (
                     <tr key={index}>
-                        <td className="line">
+                        <td className="line background-black">
                             {condition.adep_ades === 'ADEP' ? '\u2191' : condition.adep_ades === 'ADES' ? '\u2193' : ''} {condition.aerodrome}
                         </td>
-                        <td className="line">{condition.cop}</td>
-                        <td className="line">
+                        <td className="line background-black">{condition.cop}</td>
+                        <td className="line background-black">
                             {condition.feet ? 'A' : 'FL'}
                             {condition.level}
                             {condition.xc}
                         </td>
-                        {hasSpecialConditions ? <td className="line">{condition.special_conditions}</td> : null}
-                        <td className="line">{condition.from_sector}</td>
-                        <td className="line">{condition.to_sector}</td>
-                        <td className="line">{condition.from_fir}</td>
-                        <td className="line">{condition.to_fir}</td>
+                        {hasSpecialConditions ? <td className="line background-black">{condition.special_conditions}</td> : null}
+                        <td className="line background-black">{condition.from_sector}</td>
+                        <td className="line background-black">{condition.to_sector}</td>
+                        <td className="line background-black">{condition.from_fir}</td>
+                        <td className="line background-black">{condition.to_fir}</td>
                     </tr>
                 ))}
             </tbody>
