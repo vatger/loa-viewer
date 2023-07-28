@@ -7,10 +7,12 @@ import location from '../img/location.png';
 
 interface ExtendedWaypointRecord extends WaypointRecord {
     drawn: boolean;
+    zIndex: number;
 }
 
 function Markers({ conditions }: { conditions: WaypointRecord[] }) {
     const [drawnConditions, setDrawnConditions] = useState<ExtendedWaypointRecord[]>([]);
+    const [countConditionsDrawn, setCountConditionsDrawn] = useState<Number>(0);
 
     useEffect(() => {
         setDrawnConditions(
@@ -18,6 +20,7 @@ function Markers({ conditions }: { conditions: WaypointRecord[] }) {
                 return {
                     ...condition,
                     drawn: false,
+                    zIndex: 0,
                 };
             })
         );
@@ -28,17 +31,38 @@ function Markers({ conditions }: { conditions: WaypointRecord[] }) {
     const [MarkerIcon, setMarkerIcon] = useState<Icon>();
 
     const handleMarkerClick = (name: string) => {
-        setDrawnConditions(previousValue => {
-            return previousValue.map(condition => {
-                if (condition.waypoint.name === name) {
-                    return {
-                        ...condition,
-                        drawn: !condition.drawn,
-                    };
+        const copy = drawnConditions.map(condition => {
+            if (condition.waypoint.name === name) {
+                if (condition.drawn === true && condition.zIndex === 0) {
+                    if (countConditionsDrawn === 1) {
+                        condition.drawn = false;
+                    } else {
+                        condition.zIndex = 1001;
+                    }
+                } else if (condition.drawn === true) {
+                    condition.drawn = false;
+                    condition.zIndex = 0;
+                } else {
+                    condition.drawn = true;
+                    condition.zIndex = 1001;
                 }
-                return condition;
-            });
+            } else {
+                condition.zIndex = 0;
+            }
+            // console.log(condition.waypoint.name + ' ' + condition.zIndex);
+            return condition;
         });
+        setDrawnConditions(copy);
+
+        setCountConditionsDrawn(
+            drawnConditions.reduce((count, condition) => {
+                if (condition.drawn === true) {
+                    return count + 1;
+                } else {
+                    return count;
+                }
+            }, 0)
+        );
     };
 
     useMapEvent('zoomend', () => {
@@ -68,9 +92,15 @@ function Markers({ conditions }: { conditions: WaypointRecord[] }) {
                     if (condition.drawn) {
                         return (
                             <>
-                                <Marker key={`${waypoint.name}`} position={[latitude, longitude]} icon={MarkerNameWidget(waypoint.name)} eventHandlers={{ click: () => handleMarkerClick(waypoint.name) }} />
-                                <Marker key={`${waypoint.name}-marker`} position={[latitude, longitude]} icon={MarkerIcon} eventHandlers={{ click: () => handleMarkerClick(waypoint.name) }} />
-                                <Marker key={`${waypoint.name}-table`} position={[latitude, longitude]} icon={MarkerConditionTable(condition, zoom)} eventHandlers={{ click: () => handleMarkerClick(waypoint.name) }} />
+                                <Marker key={`${waypoint.name}`} position={[latitude, longitude]} icon={MarkerNameWidget(waypoint.name)} eventHandlers={{ click: () => handleMarkerClick(waypoint.name) }} zIndexOffset={condition.zIndex} />
+                                <Marker key={`${waypoint.name}-marker`} position={[latitude, longitude]} icon={MarkerIcon} eventHandlers={{ click: () => handleMarkerClick(waypoint.name) }} zIndexOffset={condition.zIndex} />
+                                <Marker
+                                    key={`${waypoint.name}-table`}
+                                    position={[latitude, longitude]}
+                                    icon={MarkerConditionTable(condition, zoom)}
+                                    eventHandlers={{ click: () => handleMarkerClick(waypoint.name) }}
+                                    zIndexOffset={condition.zIndex}
+                                />
                             </>
                         );
                     }
