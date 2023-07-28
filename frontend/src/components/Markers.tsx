@@ -4,6 +4,7 @@ import { Marker, useMap, useMapEvent } from 'react-leaflet';
 import { useEffect, useState } from 'react';
 import { WaypointRecord } from 'interfaces/waypointRecord.interface';
 import location from '../img/location.png';
+import React from 'react';
 
 interface ExtendedWaypointRecord extends WaypointRecord {
     drawn: boolean;
@@ -91,7 +92,7 @@ function Markers({ conditions }: { conditions: WaypointRecord[] }) {
                     const { latitude, longitude } = waypoint;
                     if (condition.drawn) {
                         return (
-                            <>
+                            <React.Fragment key={`drawn-${waypoint.name}`}>
                                 <Marker key={`${waypoint.name}`} position={[latitude, longitude]} icon={MarkerNameWidget(waypoint.name)} eventHandlers={{ click: () => handleMarkerClick(waypoint.name) }} zIndexOffset={condition.zIndex} />
                                 <Marker key={`${waypoint.name}-marker`} position={[latitude, longitude]} icon={MarkerIcon} eventHandlers={{ click: () => handleMarkerClick(waypoint.name) }} zIndexOffset={condition.zIndex} />
                                 <Marker
@@ -101,15 +102,15 @@ function Markers({ conditions }: { conditions: WaypointRecord[] }) {
                                     eventHandlers={{ click: () => handleMarkerClick(waypoint.name) }}
                                     zIndexOffset={condition.zIndex}
                                 />
-                            </>
+                            </React.Fragment>
                         );
                     }
 
                     return (
-                        <>
+                        <React.Fragment key={`not-drawn-${waypoint.name}`}>
                             <Marker key={`${waypoint.name}`} position={[latitude, longitude]} icon={MarkerNameWidget(waypoint.name)} eventHandlers={{ click: () => handleMarkerClick(waypoint.name) }} />;
                             <Marker key={`${waypoint.name}-marker`} position={[latitude, longitude]} icon={MarkerIcon} eventHandlers={{ click: () => handleMarkerClick(waypoint.name) }} />{' '}
-                        </>
+                        </React.Fragment>
                     );
                 })}
         </>
