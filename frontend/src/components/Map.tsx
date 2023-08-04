@@ -79,7 +79,11 @@ export default function LoaViewerMap() {
         for (const airspace of airspaces) {
             if (airspace.group === selectedFir) {
                 const owner = airspace.owner[0];
-                if (!owner.includes('_')) {
+                // filter approach stations not belonging to vACC Germany - all approach sectors are not using Vatsim callsigns i.e. no _ in their name
+                const isNonGermanApproachStation = owner.includes('_');
+                // filter Maastricht Sectors belonging to vACC Germany - sectors belonging to vACC Germany have 3 or more characters
+                const isGermanMaastrichtSector = owner.length > 2;
+                if (!isNonGermanApproachStation && isGermanMaastrichtSector) {
                     stationsSet.add(owner);
                 }
             }
