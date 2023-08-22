@@ -23,6 +23,7 @@ async function retrieveAirspacesFromCountries(countries: string[]): Promise<Airs
 
             if (airspacedata) {
                 for (const airspace of airspacedata) {
+                    airspace.country = country;
                     airspaces.push(airspace);
                 }
             }

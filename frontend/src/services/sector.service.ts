@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-async function getWaypoints() {
+async function getSectors() {
     try {
         const response = await axios.get('/api/v1/sectors');
         return response.data;
@@ -10,5 +10,5 @@ async function getWaypoints() {
 }
 
 export default {
-    getWaypoints,
+    getSectors,
 };

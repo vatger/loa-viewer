@@ -10,6 +10,7 @@ export const sectorSchema = new mongoose.Schema({
 });
 
 export const airspaceSchema = new mongoose.Schema({
+    country: { type: String, required: true },
     id: { type: String, required: true },
     group: { type: String, required: true },
     owner: { type: [String], required: true },
