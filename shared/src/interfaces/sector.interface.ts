@@ -1,4 +1,5 @@
 export interface Airspace {
+    country: string;
     id: string;
     group: string;
     owner: string[];
