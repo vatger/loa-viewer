@@ -1,14 +1,15 @@
-import { Polygon } from 'react-leaflet';
+import { Marker, Polygon } from 'react-leaflet';
 import Airspace from '@shared/interfaces/sector.interface';
-import { LatLngExpression } from 'leaflet';
+import { DivIcon, Icon, LatLngExpression, PointExpression } from 'leaflet';
 import React from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
 
 interface SectorsProps {
     airspaces: Airspace[];
-    combineSectors: Boolean;
+    showVerticalLimits: Boolean;
 }
 
-export function DisplayAirspaces({ airspaces, combineSectors }: SectorsProps) {
+export function DisplayAirspaces({ airspaces, showVerticalLimits }: SectorsProps) {
     return (
         <div>
             {airspaces.map((airspace, airspaceIndex) => (
@@ -17,6 +18,7 @@ export function DisplayAirspaces({ airspaces, combineSectors }: SectorsProps) {
                         {airspace.sectors.map((sector, sectorIndex) => (
                             <React.Fragment key={`${airspaceIndex}-${sectorIndex}`}>
                                 <Polygon key={`${airspaceIndex}-${sectorIndex}`} positions={convertCoordinatestoLatLngExpression(sector.points)} color="red" weight={2} />
+                                {showVerticalLimits && <Marker position={getAverageOfCoordinates(sector.points)} icon={SectorLevelWidget(sector.min, sector.max)} />}
                             </React.Fragment>
                         ))}
                     </div>
@@ -25,6 +27,60 @@ export function DisplayAirspaces({ airspaces, combineSectors }: SectorsProps) {
         </div>
     );
 }
+
+function SectorLevelWidget(min: number, max: number) {
+    let className = 'Marker';
+    let iconAnchor = [0, 0] as PointExpression;
+    let htmlContent;
+
+    if (min === 0) {
+        htmlContent = (
+            <span style={{ fontWeight: 'bold', fontSize: 13 }}>
+                FL{max + 1}
+                <br />
+                GND
+            </span>
+        );
+    } else {
+        htmlContent = (
+            <span style={{ fontWeight: 'bold', fontSize: 13 }}>
+                FL{max + 1} <br />
+                FL{min}
+            </span>
+        );
+    }
+
+    return new DivIcon({
+        className: className,
+        iconAnchor: iconAnchor,
+        html: renderToStaticMarkup(htmlContent),
+    });
+}
+
+function getAverageOfCoordinates(coordinates: string[][]): LatLngExpression {
+    let latSum = 0;
+    let lngSum = 0;
+    let count = 0;
+
+    coordinates.forEach(([lat, lng]) => {
+        const latNum = convertLatitudeToNumber(lat);
+        const lngNum = convertLongitudeToNumber(lng);
+
+        latSum += latNum;
+        lngSum += lngNum;
+
+        count++;
+    });
+
+    const avgLat = latSum / count;
+    const avgLng = lngSum / count;
+
+    // console.log(avgLat);
+    // console.log(avgLng);
+
+    return [avgLat, avgLng];
+}
+
 function convertCoordinatestoLatLngExpression(coordinates: string[][]): LatLngExpression[] {
     return coordinates.map(([lat, lng]) => {
         const latNum = convertLatitudeToNumber(lat);
