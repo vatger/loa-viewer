@@ -49,7 +49,7 @@ export default function LoaViewerMap() {
             });
             setConditions(convertedData);
         });
-        sectorService.getWaypoints().then((data: Airspace[]) => {
+        sectorService.getSectors().then((data: Airspace[]) => {
             const convertedData: Airspace[] = data.map((element: Airspace) => {
                 return {
                     id: element.id,
