@@ -31,7 +31,7 @@ export default function LoaViewerMap() {
 
     useEffect(() => {
         conditionService.getConditions().then((data: FrontendCondition[]) => {
-            const convertedData: FrontendCondition[] = data.map((element: FrontendCondition) => {
+            const convertedConditionData: FrontendCondition[] = data.map((element: FrontendCondition) => {
                 return {
                     _id: element._id,
                     aerodrome: element.aerodrome,
@@ -47,18 +47,19 @@ export default function LoaViewerMap() {
                     to_fir: element.to_fir,
                 };
             });
-            setConditions(convertedData);
+            setConditions(convertedConditionData);
         });
         sectorService.getSectors().then((data: Airspace[]) => {
-            const convertedData: Airspace[] = data.map((element: Airspace) => {
+            const convertedAirspaceData: Airspace[] = data.map((element: Airspace) => {
                 return {
+                    country: element.country,
                     id: element.id,
                     group: element.group,
                     owner: element.owner,
                     sectors: element.sectors,
                 };
             });
-            setAirspaces(convertedData);
+            setAirspaces(convertedAirspaceData);
         });
 
         setLoading(false);
@@ -77,15 +78,8 @@ export default function LoaViewerMap() {
     useEffect(() => {
         const stationsSet: Set<string> = new Set();
         for (const airspace of airspaces) {
-            if (airspace.group === selectedFir) {
-                const owner = airspace.owner[0];
-                // filter approach stations not belonging to vACC Germany - all approach sectors are not using Vatsim callsigns i.e. no _ in their name
-                const isNonGermanApproachStation = owner.includes('_');
-                // filter Maastricht Sectors belonging to vACC Germany - sectors belonging to vACC Germany have 3 or more characters
-                const isGermanMaastrichtSector = owner.length > 2;
-                if (!isNonGermanApproachStation && isGermanMaastrichtSector) {
-                    stationsSet.add(owner);
-                }
+            if (airspace.country === 'germany' && airspace.group === selectedFir) {
+                stationsSet.add(airspace.owner[0]);
             }
         }
 
