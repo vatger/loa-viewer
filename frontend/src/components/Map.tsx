@@ -101,17 +101,6 @@ export default function LoaViewerMap() {
 
     // Vertical limits of airspaces
     const [showVerticalLimits, setShowVerticalLimits] = useState<boolean>(false);
-    const [showVerticalLimitsButtonSeverity, setShowVerticalLimitsButtonServerity] = useState<'success' | 'danger'>('danger');
-    const [showVerticalLimitsButtonIcon, setShowVerticalLimitsButtonIcon] = useState<'pi pi-check' | 'pi pi-times'>('pi pi-times');
-
-    const handleShowVerticalLimitsClick = () => {
-        // Change style of button
-        setShowVerticalLimitsButtonServerity(prevSeverity => (prevSeverity === 'danger' ? 'success' : 'danger'));
-        setShowVerticalLimitsButtonIcon(prevIcon => (prevIcon === 'pi pi-times' ? 'pi pi-check' : 'pi pi-times'));
-
-        // hide / show vertical limits of airspaces
-        setShowVerticalLimits(!showVerticalLimits);
-    };
 
     return (
         <>
@@ -120,7 +109,12 @@ export default function LoaViewerMap() {
                     <InputText type="search" placeholder="Search" onChange={e => setSearchInput(e.target.value)} />
                     <Dropdown options={allStations} value={selectedSector} onChange={e => setSelectedSector(e.value)} />
                     <Dropdown options={sortedSelectableGroups} value={selectedFir} onChange={e => setSelectedFir(e.value)} />
-                    <Button label="Show vertical limits" severity={showVerticalLimitsButtonSeverity} icon={showVerticalLimitsButtonIcon} onClick={handleShowVerticalLimitsClick} />
+                    <Button
+                        label="Show vertical limits"
+                        severity={showVerticalLimits === true ? 'success' : 'danger'}
+                        icon={showVerticalLimits === true ? 'pi pi-check' : 'pi pi-times'}
+                        onClick={e => setShowVerticalLimits(!showVerticalLimits)}
+                    />
                 </div>
 
                 <MapContainer center={[50.026292, 8.765245]} zoom={8} style={{ width: '100vw', height: '100vh', zIndex: 0 }} maxZoom={10} minZoom={6}>
