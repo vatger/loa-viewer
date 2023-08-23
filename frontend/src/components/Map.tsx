@@ -13,6 +13,7 @@ import { WaypointRecord } from 'interfaces/waypointRecord.interface';
 import { DisplayAirspaces } from './Sectors';
 import Airspace from '@shared/interfaces/sector.interface';
 import sectorService from 'services/sector.service';
+import { Button } from 'primereact/button';
 
 export default function LoaViewerMap() {
     const [conditions, setConditions] = useState<FrontendCondition[]>([]);
@@ -98,6 +99,20 @@ export default function LoaViewerMap() {
         setDrawnAirspaces(filtered);
     }, [selectedFir, loading, airspaces, selectedSector]);
 
+    // Vertical limits of airspaces
+    const [showVerticalLimits, setShowVerticalLimits] = useState<boolean>(false);
+    const [showVerticalLimitsButtonSeverity, setShowVerticalLimitsButtonServerity] = useState<'success' | 'danger'>('danger');
+    const [showVerticalLimitsButtonIcon, setShowVerticalLimitsButtonIcon] = useState<'pi pi-check' | 'pi pi-times'>('pi pi-times');
+
+    const handleShowVerticalLimitsClick = () => {
+        // Change style of button
+        setShowVerticalLimitsButtonServerity(prevSeverity => (prevSeverity === 'danger' ? 'success' : 'danger'));
+        setShowVerticalLimitsButtonIcon(prevIcon => (prevIcon === 'pi pi-times' ? 'pi pi-check' : 'pi pi-times'));
+
+        // hide / show vertical limits of airspaces
+        setShowVerticalLimits(!showVerticalLimits);
+    };
+
     return (
         <>
             <div>
@@ -105,6 +120,7 @@ export default function LoaViewerMap() {
                     <InputText type="search" placeholder="Search" onChange={e => setSearchInput(e.target.value)} />
                     <Dropdown options={allStations} value={selectedSector} onChange={e => setSelectedSector(e.value)} />
                     <Dropdown options={sortedSelectableGroups} value={selectedFir} onChange={e => setSelectedFir(e.value)} />
+                    <Button label="Show vertical limits" severity={showVerticalLimitsButtonSeverity} icon={showVerticalLimitsButtonIcon} onClick={handleShowVerticalLimitsClick} />
                 </div>
 
                 <MapContainer center={[50.026292, 8.765245]} zoom={8} style={{ width: '100vw', height: '100vh', zIndex: 0 }} maxZoom={10} minZoom={6}>
@@ -112,7 +128,7 @@ export default function LoaViewerMap() {
                         url="https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png"
                         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
                     />
-                    <DisplayAirspaces airspaces={drawnAirspaces} combineSectors={true} />
+                    <DisplayAirspaces airspaces={drawnAirspaces} showVerticalLimits={showVerticalLimits} />
                     <Markers key={'Markers'} conditions={drawnConditions} />
                 </MapContainer>
             </div>
