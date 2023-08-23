@@ -17,7 +17,7 @@ export function DisplayAirspaces({ airspaces, showVerticalLimits }: SectorsProps
                     <div key={airspace.id}>
                         {airspace.sectors.map((sector, sectorIndex) => (
                             <React.Fragment key={`${airspaceIndex}-${sectorIndex}`}>
-                                <Polygon key={`${airspaceIndex}-${sectorIndex}`} positions={convertCoordinatestoLatLngExpression(sector.points)} color="red" weight={2} />
+                                <Polygon key={`${airspaceIndex}-${sectorIndex}`} positions={convertCoordinatestoLatLngExpression(sector.points)} color="rgb(64, 224, 208)" weight={2} fillOpacity={0.1} />
                                 {showVerticalLimits && <Marker position={getAverageOfCoordinates(sector.points)} icon={SectorLevelWidget(sector.min, sector.max)} />}
                             </React.Fragment>
                         ))}
