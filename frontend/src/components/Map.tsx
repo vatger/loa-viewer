@@ -86,7 +86,11 @@ export default function LoaViewerMap() {
         const stations: string[] = Array.from(stationsSet);
         const sortedStations = stations.sort((a, b) => a.localeCompare(b));
         setAllStations(sortedStations);
-        setSelectedSector(sortedStations[0]);
+
+        // If the FIR changes, select the first station from the FIR
+        if (!sortedStations.includes(selectedSector as string) && sortedStations.length !== 0) {
+            setSelectedSector(sortedStations[0]);
+        }
     }, [selectedFir, loading, airspaces]);
 
     useEffect(() => {
