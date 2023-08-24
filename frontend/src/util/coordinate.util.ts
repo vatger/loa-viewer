@@ -62,10 +62,3 @@ export function convertLongitudeToNumber(longitude: string): number {
 
     return lngNum;
 }
-
-export default {
-    getAverageOfCoordinates,
-    convertCoordinatestoLatLngExpression,
-    convertLatitudeToNumber,
-    convertLongitudeToNumber,
-};

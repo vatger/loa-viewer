@@ -92,7 +92,7 @@ export default function LoaViewerMap() {
         if (!sortedStations.includes(selectedSector as string) && sortedStations.length !== 0) {
             setSelectedSector(sortedStations[0]);
         }
-    }, [selectedFir, loading, airspaces]);
+    }, [selectedSector, selectedFir, loading, airspaces]);
 
     useEffect(() => {
         const filtered = airspaces.filter(airspace => airspace.owner[0] === selectedSector);

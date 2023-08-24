@@ -57,7 +57,3 @@ function SectorLevelWidget(min: number, max: number) {
         html: renderToStaticMarkup(htmlContent),
     });
 }
-
-export default {
-    Sectors: DisplayAirspaces,
-};
