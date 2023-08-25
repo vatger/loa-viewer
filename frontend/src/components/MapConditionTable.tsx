@@ -16,7 +16,7 @@ export function MapConditionTable({ conditions }: PropsTable) {
             cop: `${condition.cop}`,
             level: `${condition.feet ? 'A' : 'FL'}
             ${condition.level}
-            ${condition.xc === null ? '' : condition.xc === 'A' ? '\u2193' : '\u2191'}`,
+            ${condition.xc === null ? '' : condition.xc === 'B' ? '\u2193' : '\u2191'}`,
             sc: `${condition.special_conditions}`,
             from_sector: `${condition.from_sector}`,
             to_sector: `${condition.to_sector}`,
