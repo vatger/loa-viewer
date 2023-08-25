@@ -30,6 +30,7 @@ export default function LoaViewerMap() {
     const [selectedFir, setSelectedFir] = useState<String>('EDGG');
     // Button
     const [showVerticalLimits, setShowVerticalLimits] = useState<boolean>(false);
+    const [conditionSearchRange, setConditionSearchRange] = useState<'ofSelectedSector' | 'all'>('ofSelectedSector');
     // search bar
     const [searchInput, setSearchInput] = useState<string>('');
 
@@ -77,12 +78,12 @@ export default function LoaViewerMap() {
     const debounceSearch = useDebounce(searchInput, 500);
     useEffect(() => {
         if (!loading) {
-            const searchConditions = filterConditionsService(conditions, searchInput, selectedSector);
+            const searchConditions = filterConditionsService(conditions, searchInput, conditionSearchRange === 'ofSelectedSector' ? selectedSector : undefined);
             groupConditionsByCop(searchConditions).then(groupedConditions => {
                 setDrawnConditions(groupedConditions);
             });
         }
-    }, [debounceSearch, loading, searchInput, conditions, selectedSector]);
+    }, [debounceSearch, loading, searchInput, conditions, selectedSector, conditionSearchRange]);
 
     useEffect(() => {
         const stationsSet: Set<string> = new Set();
@@ -108,13 +109,26 @@ export default function LoaViewerMap() {
     }, [selectedFir, loading, airspaces, selectedSector]);
 
     const startContent = [
-        <InputText type="search" placeholder="Search" onChange={e => setSearchInput(e.target.value)} />,
+        <Button
+            severity={conditionSearchRange === 'ofSelectedSector' ? 'success' : 'warning'}
+            icon={'pi pi-filter'}
+            tooltip="Search all conditions or only of the selected sector"
+            tooltipOptions={{ position: 'mouse' }}
+            onClick={e => setConditionSearchRange(conditionSearchRange === 'all' ? 'ofSelectedSector' : 'all')}
+        />,
+        <InputText type="search" placeholder={conditionSearchRange === 'ofSelectedSector' ? 'Search by sector' : 'Search all conditions'} onChange={e => setSearchInput(e.target.value)} />,
         <Dropdown options={allStations} value={selectedSector} onChange={e => setSelectedSector(e.value)} />,
         <Dropdown options={selectableGroups} value={selectedFir} onChange={e => setSelectedFir(e.value)} />,
     ];
 
     const endContent = [
-        <Button label="Show vertical limits" severity={showVerticalLimits === true ? 'success' : 'danger'} icon={showVerticalLimits === true ? 'pi pi-check' : 'pi pi-times'} onClick={e => setShowVerticalLimits(!showVerticalLimits)} />,
+        <Button
+            label="Show vertical limits"
+            severity={showVerticalLimits === true ? 'success' : 'danger'}
+            icon={showVerticalLimits === true ? 'pi pi-check' : 'pi pi-times'}
+            onClick={e => setShowVerticalLimits(!showVerticalLimits)}
+            disabled={conditionSearchRange === 'all'}
+        />,
     ];
 
     return (
@@ -129,7 +143,7 @@ export default function LoaViewerMap() {
                         url="https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png"
                         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
                     />
-                    <DisplayAirspaces airspaces={drawnAirspaces} showVerticalLimits={showVerticalLimits} />
+                    {conditionSearchRange !== 'all' && <DisplayAirspaces airspaces={drawnAirspaces} showVerticalLimits={showVerticalLimits} />}
                     <Markers key={'Markers'} conditions={drawnConditions} />
                 </MapContainer>
             </div>
