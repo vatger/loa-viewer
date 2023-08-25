@@ -17,19 +17,26 @@ import { Button } from 'primereact/button';
 import { Toolbar } from 'primereact/toolbar';
 
 export default function LoaViewerMap() {
-    const [conditions, setConditions] = useState<FrontendCondition[]>([]);
-    const [drawnConditions, setDrawnConditions] = useState<WaypointRecord[]>([]);
-    const [searchInput, setSearchInput] = useState<string>('');
     const [loading, setLoading] = useState(true);
 
+    // persistent data
+    const [conditions, setConditions] = useState<FrontendCondition[]>([]);
     const [airspaces, setAirspaces] = useState<Airspace[]>([]);
-    const [drawnAirspaces, setDrawnAirspaces] = useState<Airspace[]>([]);
+    const selectableGroups = ['EDMM', 'EDWW', 'EDGG', 'EDYY', 'EDUU', 'APP'].sort((a, b) => a.localeCompare(b));
 
-    const selectableGroups = ['EDMM', 'EDWW', 'EDGG', 'EDYY', 'EDUU', 'APP'];
-    const sortedSelectableGroups = selectableGroups.sort((a, b) => a.localeCompare(b));
-    const [allStations, setAllStations] = useState<String[]>([]);
+    // Toolbar:
+    // Dropdown menu
     const [selectedSector, setSelectedSector] = useState<String>('GIN');
     const [selectedFir, setSelectedFir] = useState<String>('EDGG');
+    // Button
+    const [showVerticalLimits, setShowVerticalLimits] = useState<boolean>(false);
+    // search bar
+    const [searchInput, setSearchInput] = useState<string>('');
+
+    // filtered data - based on input in toolbar
+    const [drawnConditions, setDrawnConditions] = useState<WaypointRecord[]>([]);
+    const [drawnAirspaces, setDrawnAirspaces] = useState<Airspace[]>([]);
+    const [allStations, setAllStations] = useState<String[]>([]);
 
     useEffect(() => {
         conditionService.getConditions().then((data: FrontendCondition[]) => {
@@ -100,13 +107,10 @@ export default function LoaViewerMap() {
         setDrawnAirspaces(filtered);
     }, [selectedFir, loading, airspaces, selectedSector]);
 
-    // Vertical limits of airspaces
-    const [showVerticalLimits, setShowVerticalLimits] = useState<boolean>(false);
-
     const startContent = [
         <InputText type="search" placeholder="Search" onChange={e => setSearchInput(e.target.value)} />,
         <Dropdown options={allStations} value={selectedSector} onChange={e => setSelectedSector(e.value)} />,
-        <Dropdown options={sortedSelectableGroups} value={selectedFir} onChange={e => setSelectedFir(e.value)} />,
+        <Dropdown options={selectableGroups} value={selectedFir} onChange={e => setSelectedFir(e.value)} />,
     ];
 
     const endContent = [
