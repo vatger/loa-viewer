@@ -14,6 +14,7 @@ import { DisplayAirspaces } from './Sectors';
 import Airspace from '@shared/interfaces/sector.interface';
 import sectorService from 'services/sector.service';
 import { Button } from 'primereact/button';
+import { Toolbar } from 'primereact/toolbar';
 
 export default function LoaViewerMap() {
     const [conditions, setConditions] = useState<FrontendCondition[]>([]);
@@ -102,19 +103,21 @@ export default function LoaViewerMap() {
     // Vertical limits of airspaces
     const [showVerticalLimits, setShowVerticalLimits] = useState<boolean>(false);
 
+    const startContent = [
+        <InputText type="search" placeholder="Search" onChange={e => setSearchInput(e.target.value)} />,
+        <Dropdown options={allStations} value={selectedSector} onChange={e => setSelectedSector(e.value)} />,
+        <Dropdown options={sortedSelectableGroups} value={selectedFir} onChange={e => setSelectedFir(e.value)} />,
+    ];
+
+    const endContent = [
+        <Button label="Show vertical limits" severity={showVerticalLimits === true ? 'success' : 'danger'} icon={showVerticalLimits === true ? 'pi pi-check' : 'pi pi-times'} onClick={e => setShowVerticalLimits(!showVerticalLimits)} />,
+    ];
+
     return (
         <>
             <div>
                 <div style={{ position: 'absolute', zIndex: 1, top: '10%', left: '50%', transform: 'translate(-50%, -50%)', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                    <InputText type="search" placeholder="Search" onChange={e => setSearchInput(e.target.value)} />
-                    <Dropdown options={allStations} value={selectedSector} onChange={e => setSelectedSector(e.value)} />
-                    <Dropdown options={sortedSelectableGroups} value={selectedFir} onChange={e => setSelectedFir(e.value)} />
-                    <Button
-                        label="Show vertical limits"
-                        severity={showVerticalLimits === true ? 'success' : 'danger'}
-                        icon={showVerticalLimits === true ? 'pi pi-check' : 'pi pi-times'}
-                        onClick={e => setShowVerticalLimits(!showVerticalLimits)}
-                    />
+                    <Toolbar start={startContent} end={endContent} />
                 </div>
 
                 <MapContainer center={[50.026292, 8.765245]} zoom={8} style={{ width: '100vw', height: '100vh', zIndex: 0 }} maxZoom={10} minZoom={6}>
