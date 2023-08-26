@@ -86,7 +86,7 @@ export default function LoaViewerMap() {
                 setDrawnConditions(groupedConditions);
             });
         }
-    }, [debounceSearch, loading, searchInput, conditions, selectedSector, conditionSearchRange, filterFromToSector]);
+    }, [debounceSearch, loading, searchInput, conditions, selectedSector, conditionSearchRange, filterFromToSector, filterFromToSectorSelection]);
 
     useEffect(() => {
         const stationsSet: Set<string> = new Set();
