@@ -15,6 +15,7 @@ import Airspace from '@shared/interfaces/sector.interface';
 import sectorService from 'services/sector.service';
 import { Button } from 'primereact/button';
 import { Toolbar } from 'primereact/toolbar';
+import { Divider } from 'primereact/divider';
 
 export default function LoaViewerMap() {
     const [loading, setLoading] = useState(true);
@@ -31,6 +32,8 @@ export default function LoaViewerMap() {
     // Button
     const [showVerticalLimits, setShowVerticalLimits] = useState<boolean>(false);
     const [conditionSearchRange, setConditionSearchRange] = useState<'ofSelectedSector' | 'all'>('ofSelectedSector');
+    const [filterFromToSector, setFilterFromToSector] = useState<boolean>(false);
+    const [filterFromToSectorSelection, setFilterFromToSectorSelection] = useState<'from sector' | 'to sector'>('to sector');
     // search bar
     const [searchInput, setSearchInput] = useState<string>('');
 
@@ -78,12 +81,12 @@ export default function LoaViewerMap() {
     const debounceSearch = useDebounce(searchInput, 500);
     useEffect(() => {
         if (!loading) {
-            const searchConditions = filterConditionsService(conditions, searchInput, conditionSearchRange === 'ofSelectedSector' ? selectedSector : undefined);
+            const searchConditions = filterConditionsService(conditions, searchInput, conditionSearchRange === 'ofSelectedSector' ? selectedSector : undefined, filterFromToSector === true ? filterFromToSectorSelection : false);
             groupConditionsByCop(searchConditions).then(groupedConditions => {
                 setDrawnConditions(groupedConditions);
             });
         }
-    }, [debounceSearch, loading, searchInput, conditions, selectedSector, conditionSearchRange]);
+    }, [debounceSearch, loading, searchInput, conditions, selectedSector, conditionSearchRange, filterFromToSector]);
 
     useEffect(() => {
         const stationsSet: Set<string> = new Set();
@@ -109,16 +112,30 @@ export default function LoaViewerMap() {
     }, [selectedFir, loading, airspaces, selectedSector]);
 
     const startContent = [
+        <InputText type="search" placeholder={conditionSearchRange === 'ofSelectedSector' ? 'Search by sector' : 'Search all conditions'} onChange={e => setSearchInput(e.target.value)} />,
+        <Divider layout="vertical" />,
         <Button
-            severity={conditionSearchRange === 'ofSelectedSector' ? 'success' : 'warning'}
-            icon={'pi pi-filter'}
+            label="Filter by sector"
+            style={{ paddingRight: '20px' }}
+            severity={conditionSearchRange === 'ofSelectedSector' ? 'success' : 'danger'}
+            icon="pi pi-filter"
             tooltip="Search all conditions or only of the selected sector"
             tooltipOptions={{ position: 'mouse' }}
             onClick={e => setConditionSearchRange(conditionSearchRange === 'all' ? 'ofSelectedSector' : 'all')}
         />,
-        <InputText type="search" placeholder={conditionSearchRange === 'ofSelectedSector' ? 'Search by sector' : 'Search all conditions'} onChange={e => setSearchInput(e.target.value)} />,
-        <Dropdown options={allStations} value={selectedSector} onChange={e => setSelectedSector(e.value)} />,
-        <Dropdown options={selectableGroups} value={selectedFir} onChange={e => setSelectedFir(e.value)} />,
+        <Dropdown options={allStations} value={selectedSector} onChange={e => setSelectedSector(e.value)} disabled={conditionSearchRange === 'all'} />,
+        <Dropdown options={selectableGroups} value={selectedFir} onChange={e => setSelectedFir(e.value)} disabled={conditionSearchRange === 'all'} />,
+        <Divider layout="vertical" />,
+        <Button
+            label="Filter by"
+            severity={filterFromToSector === false ? 'danger' : 'success'}
+            icon="pi pi-filter"
+            tooltip="Filter in- or outgoing conditions"
+            tooltipOptions={{ position: 'mouse' }}
+            onClick={e => setFilterFromToSector(!filterFromToSector)}
+            disabled={conditionSearchRange !== 'ofSelectedSector'}
+        />,
+        <Dropdown options={['from sector', 'to sector']} value={filterFromToSectorSelection} onChange={e => setFilterFromToSectorSelection(e.value)} disabled={!filterFromToSector || conditionSearchRange !== 'ofSelectedSector'} />,
     ];
 
     const endContent = [
@@ -134,11 +151,9 @@ export default function LoaViewerMap() {
     return (
         <>
             <div>
-                <div style={{ position: 'absolute', zIndex: 1, top: '10%', left: '50%', transform: 'translate(-50%, -50%)', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                    <Toolbar start={startContent} end={endContent} />
-                </div>
+                <Toolbar start={startContent} end={endContent} />
 
-                <MapContainer center={[50.026292, 8.765245]} zoom={8} style={{ width: '100vw', height: '100vh', zIndex: 0 }} maxZoom={10} minZoom={6}>
+                <MapContainer style={{ width: '100vw', height: '100vh', zIndex: 0 }} center={[50.026292, 8.765245]} zoom={8} maxZoom={10} minZoom={6}>
                     <TileLayer
                         url="https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png"
                         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
