@@ -3,24 +3,25 @@ import { FrontendCondition } from 'interfaces/condition.interface';
 export default function filterConditions(conditions: FrontendCondition[], search: string, selectedOwner: String | undefined, filterFromToSector: false | 'from sector' | 'to sector'): FrontendCondition[] {
     search = search.toLowerCase();
 
-    // Use the Array.filter() method to create a new array with only the elements that match the search string and selectedOwner
-    const filteredConditions = conditions.filter(condition => {
-        // Check if any of the properties of the current condition match the search string and selectedOwner
-        return Object.values(condition).some(value => {
-            if (selectedOwner === undefined && typeof value === 'string' && value.toLowerCase().includes(search)) {
-                return condition;
-            } else if (typeof value === 'string' && value.toLowerCase().includes(search)) {
-                if (filterFromToSector === false) {
-                    return condition.from_sector === selectedOwner || condition.to_sector === selectedOwner;
-                } else if (filterFromToSector === 'from sector') {
-                    return condition.from_sector === selectedOwner;
-                } else if (filterFromToSector === 'to sector') {
-                    return condition.to_sector === selectedOwner;
+    const isValueMatch = (value: any) => typeof value === 'string' && value.toLowerCase().includes(search);
+
+    const isFromSectorMatch = filterFromToSector === false || filterFromToSector === 'from sector';
+    const isToSectorMatch = filterFromToSector === false || filterFromToSector === 'to sector';
+
+    const filteredConditions = conditions.filter(condition =>
+        Object.values(condition).some(value => {
+            if (selectedOwner === undefined && isValueMatch(value)) {
+                return true;
+            } else if (isValueMatch(value)) {
+                if (isFromSectorMatch && condition.from_sector === selectedOwner) {
+                    return true;
+                } else if (isToSectorMatch && condition.to_sector === selectedOwner) {
+                    return true;
                 }
             }
             return false;
-        });
-    });
+        })
+    );
 
     return filteredConditions;
 }
