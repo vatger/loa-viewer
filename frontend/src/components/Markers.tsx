@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { WaypointRecord } from 'interfaces/waypointRecord.interface';
 import location from '../img/location.png';
 import React from 'react';
+import { MapConditionTable } from './MapConditionTable';
 
 interface ExtendedWaypointRecord extends WaypointRecord {
     drawn: boolean;
@@ -98,7 +99,7 @@ function Markers({ conditions }: { conditions: WaypointRecord[] }) {
                                 <Marker
                                     key={`${waypoint.name}-table`}
                                     position={[latitude, longitude]}
-                                    icon={MarkerConditionTable(condition, zoom)}
+                                    icon={MarkerConditionTable(condition)}
                                     eventHandlers={{ click: () => handleMarkerClick(waypoint.name) }}
                                     zIndexOffset={condition.zIndex}
                                 />
@@ -125,79 +126,11 @@ function MarkerNameWidget(name: string) {
     });
 }
 
-function MarkerConditionTable(condition: WaypointRecord, zoom: number) {
+function MarkerConditionTable(condition: WaypointRecord) {
     return new DivIcon({
         className: 'custom-icon',
-        html: renderToStaticMarkup(<ConditionTableIcon zoom={zoom} conditions={condition} />),
+        html: renderToStaticMarkup(<MapConditionTable conditions={condition} />),
     });
-}
-
-interface PropsTable {
-    zoom: number;
-    conditions: WaypointRecord;
-}
-
-function ConditionTableIcon({ zoom, conditions }: PropsTable) {
-    const tableStyle = {
-        fontSize: 1 / zoom + 10,
-    };
-
-    const agreements = conditions.conditions;
-    let hasSpecialConditions = false;
-    let columnSpan = 3;
-
-    agreements.forEach(condition => {
-        if (condition.special_conditions) {
-            hasSpecialConditions = true;
-            columnSpan = 4;
-        }
-    });
-
-    return (
-        <table className="map-table-style" style={tableStyle}>
-            <thead>
-                <tr>
-                    <th className="center" colSpan={columnSpan} />
-                    <th className="center line background-black" colSpan={2}>
-                        Sector
-                    </th>
-                    <th className="center line background-black " colSpan={2}>
-                        FIR
-                    </th>
-                </tr>
-                <tr>
-                    <th className="line background-black background-black">AD</th>
-                    <th className="line background-black">COP</th>
-                    <th className="line background-black">Level</th>
-                    {hasSpecialConditions ? <th className="line background-black">Special Conditions</th> : null}
-                    <th className="line background-black">From</th>
-                    <th className="line background-black">To</th>
-                    <th className="line background-black">From</th>
-                    <th className="line background-black">To</th>
-                </tr>
-            </thead>
-            <tbody>
-                {agreements.map((condition, index) => (
-                    <tr key={index}>
-                        <td className="line background-black">
-                            {condition.adep_ades === 'ADEP' ? '\u2191' : condition.adep_ades === 'ADES' ? '\u2193' : ''} {condition.aerodrome}
-                        </td>
-                        <td className="line background-black">{condition.cop}</td>
-                        <td className="line background-black">
-                            {condition.feet ? 'A' : 'FL'}
-                            {condition.level}
-                            {condition.xc}
-                        </td>
-                        {hasSpecialConditions ? <td className="line background-black">{condition.special_conditions}</td> : null}
-                        <td className="line background-black">{condition.from_sector}</td>
-                        <td className="line background-black">{condition.to_sector}</td>
-                        <td className="line background-black">{condition.from_fir}</td>
-                        <td className="line background-black">{condition.to_fir}</td>
-                    </tr>
-                ))}
-            </tbody>
-        </table>
-    );
 }
 
 export default Markers;

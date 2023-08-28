@@ -1,14 +1,16 @@
-import { Polygon } from 'react-leaflet';
+import { Marker, Polygon } from 'react-leaflet';
 import Airspace from '@shared/interfaces/sector.interface';
-import { LatLngExpression } from 'leaflet';
+import { DivIcon, PointExpression } from 'leaflet';
 import React from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
+import { convertCoordinatestoLatLngExpression, getAverageOfCoordinates } from 'util/coordinate.util';
 
 interface SectorsProps {
     airspaces: Airspace[];
-    combineSectors: Boolean;
+    showVerticalLimits: Boolean;
 }
 
-export function DisplayAirspaces({ airspaces, combineSectors }: SectorsProps) {
+export function DisplayAirspaces({ airspaces, showVerticalLimits }: SectorsProps) {
     return (
         <div>
             {airspaces.map((airspace, airspaceIndex) => (
@@ -16,7 +18,8 @@ export function DisplayAirspaces({ airspaces, combineSectors }: SectorsProps) {
                     <div key={airspace.id}>
                         {airspace.sectors.map((sector, sectorIndex) => (
                             <React.Fragment key={`${airspaceIndex}-${sectorIndex}`}>
-                                <Polygon key={`${airspaceIndex}-${sectorIndex}`} positions={convertCoordinatestoLatLngExpression(sector.points)} color="red" weight={2} />
+                                <Polygon key={`${airspaceIndex}-${sectorIndex}`} positions={convertCoordinatestoLatLngExpression(sector.points)} color="rgb(64, 224, 208)" weight={2} fillOpacity={0.1} />
+                                {showVerticalLimits && <Marker position={getAverageOfCoordinates(sector.points)} icon={SectorLevelWidget(sector.min, sector.max)} />}
                             </React.Fragment>
                         ))}
                     </div>
@@ -25,45 +28,32 @@ export function DisplayAirspaces({ airspaces, combineSectors }: SectorsProps) {
         </div>
     );
 }
-function convertCoordinatestoLatLngExpression(coordinates: string[][]): LatLngExpression[] {
-    return coordinates.map(([lat, lng]) => {
-        const latNum = convertLatitudeToNumber(lat);
-        const lngNum = convertLongitudeToNumber(lng);
 
-        return [latNum, lngNum];
+function SectorLevelWidget(min: number, max: number) {
+    let className = 'Marker';
+    let iconAnchor = [0, 0] as PointExpression;
+    let htmlContent;
+
+    if (min === 0) {
+        htmlContent = (
+            <span style={{ fontWeight: 'bold', fontSize: 13 }}>
+                FL{max + 1}
+                <br />
+                GND
+            </span>
+        );
+    } else {
+        htmlContent = (
+            <span style={{ fontWeight: 'bold', fontSize: 13 }}>
+                FL{max + 1} <br />
+                FL{min}
+            </span>
+        );
+    }
+
+    return new DivIcon({
+        className: className,
+        iconAnchor: iconAnchor,
+        html: renderToStaticMarkup(htmlContent),
     });
 }
-
-function convertLatitudeToNumber(latitude: string): number {
-    let latSign = 1;
-
-    if (latitude.startsWith('-')) {
-        latitude = latitude.slice(1); // Remove the '-' character
-        latSign = -1;
-    }
-    const latDegrees = parseInt(latitude.slice(0, 2));
-    const latMinutes = parseInt(latitude.slice(2, 4));
-    const latSeconds = parseInt(latitude.slice(4, 9));
-    const latNum = (latDegrees + latMinutes / 60 + latSeconds / 3600) * latSign;
-
-    return latNum;
-}
-
-function convertLongitudeToNumber(longitude: string): number {
-    let latSign = 1;
-
-    if (longitude.startsWith('-')) {
-        longitude = longitude.slice(1); // Remove the '-' character
-        latSign = -1;
-    }
-    const lngDegrees = parseInt(longitude.slice(0, 3));
-    const lngMinutes = parseInt(longitude.slice(3, 5));
-    const lngSeconds = parseInt(longitude.slice(5, 8));
-    const lngNum = (lngDegrees + lngMinutes / 60 + lngSeconds / 3600) * latSign;
-
-    return lngNum;
-}
-
-export default {
-    Sectors: DisplayAirspaces,
-};
