@@ -112,9 +112,10 @@ export default function LoaViewerMap() {
     }, [selectedFir, loading, airspaces, selectedSector]);
 
     const startContent = [
-        <InputText type="search" placeholder={conditionSearchRange === 'ofSelectedSector' ? 'Search by sector' : 'Search all conditions'} onChange={e => setSearchInput(e.target.value)} />,
-        <Divider layout="vertical" />,
+        <InputText key="InputTextSearch" type="search" placeholder={conditionSearchRange === 'ofSelectedSector' ? 'Search by sector' : 'Search all conditions'} onChange={e => setSearchInput(e.target.value)} />,
+        <Divider key="DividerSearch" layout="vertical" />,
         <Button
+            key="ButtonSearchRange"
             label="Filter by sector"
             style={{ paddingRight: '20px' }}
             severity={conditionSearchRange === 'ofSelectedSector' ? 'success' : 'danger'}
@@ -123,10 +124,11 @@ export default function LoaViewerMap() {
             tooltipOptions={{ position: 'mouse' }}
             onClick={e => setConditionSearchRange(conditionSearchRange === 'all' ? 'ofSelectedSector' : 'all')}
         />,
-        <Dropdown options={allStations} value={selectedSector} onChange={e => setSelectedSector(e.value)} disabled={conditionSearchRange === 'all'} />,
-        <Dropdown options={selectableGroups} value={selectedFir} onChange={e => setSelectedFir(e.value)} disabled={conditionSearchRange === 'all'} />,
-        <Divider layout="vertical" />,
+        <Dropdown key="DropdownSelectedStation" options={allStations} value={selectedSector} onChange={e => setSelectedSector(e.value)} disabled={conditionSearchRange === 'all'} />,
+        <Dropdown key="DropdownSelectedFIR" options={selectableGroups} value={selectedFir} onChange={e => setSelectedFir(e.value)} disabled={conditionSearchRange === 'all'} />,
+        <Divider key="DividerStationSelection" layout="vertical" />,
         <Button
+            key="ButtonFilterFromTo"
             label="Filter by"
             severity={filterFromToSector === false ? 'danger' : 'success'}
             icon="pi pi-filter"
@@ -135,11 +137,18 @@ export default function LoaViewerMap() {
             onClick={e => setFilterFromToSector(!filterFromToSector)}
             disabled={conditionSearchRange !== 'ofSelectedSector'}
         />,
-        <Dropdown options={['from sector', 'to sector']} value={filterFromToSectorSelection} onChange={e => setFilterFromToSectorSelection(e.value)} disabled={!filterFromToSector || conditionSearchRange !== 'ofSelectedSector'} />,
+        <Dropdown
+            key="DropdownFromTo"
+            options={['from sector', 'to sector']}
+            value={filterFromToSectorSelection}
+            onChange={e => setFilterFromToSectorSelection(e.value)}
+            disabled={!filterFromToSector || conditionSearchRange !== 'ofSelectedSector'}
+        />,
     ];
 
     const endContent = [
         <Button
+            key="ButtonVerticalLimits"
             label="Show vertical limits"
             severity={showVerticalLimits === true ? 'success' : 'danger'}
             icon={showVerticalLimits === true ? 'pi pi-check' : 'pi pi-times'}
