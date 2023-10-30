@@ -91,7 +91,7 @@ export default function LoaViewerMap() {
     useEffect(() => {
         const stationsSet: Set<string> = new Set();
         for (const airspace of airspaces) {
-            if (airspace.country === 'germany' && airspace.group === selectedFir) {
+            if (airspace.country === 'ed' && airspace.group === selectedFir) {
                 stationsSet.add(airspace.owner[0]);
             }
         }

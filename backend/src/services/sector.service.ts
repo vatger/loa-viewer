@@ -56,7 +56,7 @@ async function updateSectors() {
 
     // fetch sectors
     // filenames as given in https://github.com/lennycolton/vatglasses-data/tree/main/data
-    const countries: string[] = ['germany', 'nl', 'belux', 'austria', 'czechia'];
+    const countries: string[] = ['ed', 'eh', 'eb-el', 'lo', 'lk'];
     const sectors = await retrieveAirspacesFromCountries(countries);
 
     // Insert fetched sectors
