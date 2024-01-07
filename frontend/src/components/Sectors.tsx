@@ -34,7 +34,7 @@ function SectorLevelWidget(min: number, max: number) {
     let iconAnchor = [0, 0] as PointExpression;
     let htmlContent;
 
-    if (min === 0) {
+    if (min === 0 || !min) {
         htmlContent = (
             <span style={{ fontWeight: 'bold', fontSize: 13 }}>
                 FL{max + 1}
@@ -45,7 +45,7 @@ function SectorLevelWidget(min: number, max: number) {
     } else {
         htmlContent = (
             <span style={{ fontWeight: 'bold', fontSize: 13 }}>
-                FL{max + 1} <br />
+                FL{max + 1 || 660} <br />
                 FL{min}
             </span>
         );
