@@ -1,6 +1,6 @@
 {
   "name": "loa-viewer-backend",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "description": "",
   "main": "app.js",
   "scripts": {
